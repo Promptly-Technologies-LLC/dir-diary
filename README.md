@@ -6,7 +6,7 @@
 
 ## To-do
 
-- [ ] Add support for using system environment variable rather than .env
+- [ ] Write README
 - [ ] Create a Github Action to run this on every commit
 - [ ] Add tech stack summarization
 - [ ] Add usage summarization
