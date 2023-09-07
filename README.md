@@ -6,11 +6,11 @@
 
 ## To-do
 
-- [ ] Implement long-context [fallback](https://python.langchain.com/docs/guides/fallbacks)
-- [ ] Turn into a CLI tool using click
 - [ ] Add support for using system environment variable rather than .env
-- [ ] Add tech stack summarization
 - [ ] Create a Github Action to run this on every commit
+- [ ] Add tech stack summarization
+- [ ] Add usage summarization
+- [ ] Add support for LLMs other than OpenAI's
 
 ## Ideas
 

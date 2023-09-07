@@ -20,7 +20,6 @@ def initialize_model(
     if api_key is None:
         load_dotenv()
         api_key: str = os.getenv(key="OPENAI_API_KEY")
-        print("Using API key from .env file")
 
     # Create a chatbot instance using langchain
     llm: ChatOpenAI = ChatOpenAI(
