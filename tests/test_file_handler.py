@@ -1,5 +1,5 @@
 # test_file_handler.py
-from pseudocode_summarizer import read_pseudocode_file, write_pseudocode_file, identify_new_and_modified_files, remove_deleted_files_from_pseudocode, ModulePseudocode, ProjectFile
+from ..pseudocode_summarizer.file_handler import read_pseudocode_file, write_pseudocode_file, identify_new_and_modified_files, remove_deleted_files_from_pseudocode, ModulePseudocode, ProjectFile
 from pathlib import Path
 from datetime import datetime
 import os

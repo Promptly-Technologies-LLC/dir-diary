@@ -9,6 +9,7 @@ The pseudocode summary of the given code is as follows:
    b. If api_key is None, load the API key from the .env file or environment using the load_dotenv function and os.getenv method. Print a message indicating that the API key is being used from the .env file.
    c. Create an instance of the ChatOpenAI class named "llm" with the provided api_key, model_name, max_tokens (set to 2000), and temperature.
    d. Return the "llm" instance.
+
 # pseudocode_summarizer\classifier.py
 2023-09-06 14:47:01
 The code begins by importing necessary modules and dependencies. It imports the `ProjectFile` class from the `file_handler` module, the `Path` class from the `pathlib` module, various classes and functions from the `langchain` module, the `ChatOpenAI` class from the `chat_models` module, the `PydanticOutputParser` class from the `output_parsers` module, the `json` module, and some classes and functions from the `typing` and `pydantic` modules.
@@ -79,6 +80,7 @@ Define classify_files() function
     - Assign roles to project_files based on mapping
     - Return updated project_files
 ```
+
 # pseudocode_summarizer\file_handler.py
 2023-09-06 14:52:07
 Pseudocode Summary:
@@ -114,6 +116,7 @@ Pseudocode Summary:
 29. Inside `remove_deleted_files_from_pseudocode`, convert the `files` list into a set of paths for faster lookup.
 30. Filter the `pseudocode` list to include only files present in the `files` set.
 31. Return the filtered `pseudocode` list.
+
 # pseudocode_summarizer\legacy.py
 2023-09-05 11:39:30
 The code begins by importing necessary modules and dependencies. It imports the `Literal` type from the `typing` module, the `Path` class from the `pathlib` module, various classes and functions from the `langchain` package, the `BaseModel` and `Field` classes from the `pydantic` module, and the `initialize_model` function from a `chatbot` module.
@@ -135,6 +138,7 @@ The output of the chatbot is then parsed into a `FileClassificationList` object 
 Next, the list of `FileClassifications` in the parsed output is filtered into two separate lists: `include_files` and `ignore_files`. This is done by iterating over each `FileClassification` object in the `files` attribute of the `parsed_output` object and checking its `classification` field. If the `classification` is "include", the file path is added to the `include_files` list. If the `classification` is "ignore", the file path is added to the `ignore_files` list.
 
 Finally, the function returns the `include_files` and `ignore_files` lists as a tuple.
+
 # pseudocode_summarizer\mapper.py
 2023-09-06 12:28:34
 Pseudocode Summary:
@@ -167,21 +171,7 @@ Pseudocode Summary:
     - Import the "map_project_folder" function from the "pseudocode_summarizer" module.
     - Call the "map_project_folder" function with the "startpath" parameter set to "." and assign the result to "paths_list".
     - Iterate over the "paths_list" and print the "path" and "modified" attributes of each entry.
-# pseudocode_summarizer\summarize.py
-2023-09-06 14:53:08
-The code is a function called `summarize_project_folder` that takes several parameters: `startpath`, `pseudocode_file`, `project_map_file`, `include`, `api_key`, `model_name`, and `temperature`. The function summarizes a project folder by generating pseudocode for the files in the folder.
 
-The function first creates `pseudocode_file` and `project_map_file` objects by appending `startpath` to their respective paths. Then, it maps the project folder using the `map_project_folder` function, which returns a list of `ProjectFile` objects. The function removes any files listed in the `.gitignore` file using the `remove_gitignored_files` function.
-
-Next, the function initializes an OpenAI chatbot using the `initialize_model` function. It then classifies the project files based on their roles using the `classify_files` function. The function filters the project files to keep only those with roles specified in the `include` list.
-
-The function reads the pseudocode file or creates a new one using the `read_pseudocode_file` function and obtains a list of `ModulePseudocode` objects. It filters the pseudocode summary to remove any files that have been deleted using the `remove_deleted_files_from_pseudocode` function.
-
-The function identifies new and modified files since the last summary using the `identify_new_and_modified_files` function. It combines the new and modified files into a list called `files_to_summarize`.
-
-If there are no files to summarize and the updated pseudocode is identical to the existing pseudocode, the function exits. Otherwise, for each file in `files_to_summarize`, the function queries the chatbot for an updated pseudocode summary using the `summarize_file` function. The generated pseudocode is added to the `updated_pseudocode` list.
-
-Finally, the function writes the updated pseudocode to the pseudocode file using the `write_pseudocode_file` function and returns.
 # pseudocode_summarizer\summarizer.py
 2023-09-06 14:54:04
 The code imports the necessary modules and types from various libraries. It defines a string variable `summarize_template` which contains a prompt for generating a pseudocode summary. 
@@ -195,6 +185,7 @@ The `llm_chain` object is then used to generate an output by passing in the `inp
 A `ModulePseudocode` object called `generated_pseudocode` is created using the `ModulePseudocode` class, with the `path`, `modified`, and `content` attributes set to the corresponding values from `file_to_summarize` and `output['text']`. 
 
 Finally, the `generated_pseudocode` object is returned.
+
 # pseudocode_summarizer\__init__.py
 2023-09-06 10:51:03
 The code is an __init__.py file that imports various functions and classes from different modules and makes them available for use. The imported objects include:
@@ -206,3 +197,225 @@ The code is an __init__.py file that imports various functions and classes from 
 - summarize_project_folder from the summarize module
 
 All the imported objects are added to the __all__ list, which specifies the objects that will be imported when using the "from module import *" syntax.
+
+# pseudocode_summarizer\chatbot.py
+2023-09-07 14:57:38
+1. Import necessary libraries and modules.
+2. Define a function called "initialize_model" with the following arguments:
+   - api_key (string, optional)
+   - temperature (float, optional)
+   - model_name (string, optional)
+   - callbacks (list, optional)
+   The function returns a ChatOpenAI object.
+3. Inside the "initialize_model" function:
+   - Check if an API key is provided. If not, load it from the .env file or environment.
+   - Create a ChatOpenAI object called "llm" with the provided arguments.
+   - Return the "llm" object.
+4. Define a function called "query_llm" with the following arguments:
+   - prompt (PromptTemplate)
+   - input_str (string)
+   - llm (ChatOpenAI)
+   - long_context_llm (ChatOpenAI)
+   - parser (PydanticOutputParser, optional)
+   The function returns a BaseModel object.
+5. Inside the "query_llm" function:
+   - Create an LLMChain object called "llm_chain" with the provided arguments.
+   - Try to generate the output from the input using the "llm_chain" object.
+   - If an InvalidRequestError is raised, check if "long_context_llm" is None.
+     - If it is None, raise the error.
+     - If it is not None, print a warning message, update the "llm_chain" object with "long_context_llm", and generate the output again.
+   - If no parser is provided, return the raw output.
+   - If a parser is provided, parse the output using the "parser" object.
+   - Return the parsed output.
+
+# pseudocode_summarizer\classifier.py
+2023-09-07 14:11:49
+The code includes the following functions and classes:
+
+1. Class: FileClassification
+   - Data structure for LLM classification of project file roles
+   - Attributes:
+     - path: Path (file path relative to the project root)
+     - role: Optional[Literal[...]] (role the file plays in the project)
+
+2. Class: FileClassificationList
+   - Data structure for a list of FileClassifications
+   - Attributes:
+     - files: list[FileClassification] (List of file classifications)
+   - Method: to_json()
+     - Converts a FileClassificationList to a JSON-formatted string
+
+3. Function: initialize_project_map(project_map_path: Path) -> FileClassificationList
+   - Initializes a project map from a JSON file
+   - Arguments:
+     - project_map_path: Path (path to the project map JSON file)
+   - Returns:
+     - FileClassificationList (initialized project map)
+
+4. Function: update_project_map(project_map: FileClassificationList, project_files: list[ProjectFile]) -> FileClassificationList
+   - Updates the project map with new files and removes deleted files
+   - Arguments:
+     - project_map: FileClassificationList (current project map)
+     - project_files: list[ProjectFile] (list of project files)
+   - Returns:
+     - FileClassificationList (updated project map)
+
+5. Class: PydanticOutputParser
+   - Parser for the LLM output
+   - Arguments:
+     - pydantic_object: FileClassificationList
+
+6. Class: PromptTemplate
+   - Prompt template for determining the roles that files play in the project
+   - Attributes:
+     - template: str (template string)
+     - input_variables: list[str] (input variable names)
+     - partial_variables: dict (partial variable names and values)
+     - output_parser: PydanticOutputParser
+
+7. Function: classify_files(project_map_file: Path, project_files: list[ProjectFile], llm: ChatOpenAI, long_context_llm: ChatOpenAI) -> list[ProjectFile]
+   - Queries a chatbot to determine the role that files play in the project
+   - Arguments:
+     - project_map_file: Path (path to the project map JSON file)
+     - project_files: list[ProjectFile] (list of project files)
+     - llm: ChatOpenAI (chatbot for short context)
+     - long_context_llm: ChatOpenAI (chatbot for long context)
+   - Returns:
+     - list[ProjectFile] (updated list of project files)
+
+8. Function: assign_roles(project_map: FileClassificationList, project_files: list[ProjectFile]) -> list[ProjectFile]
+   - Assigns roles to project files based on corresponding roles in project_map
+   - Arguments:
+     - project_map: FileClassificationList (project map with file classifications)
+     - project_files: list[ProjectFile] (list of project files)
+   - Returns:
+     - list[ProjectFile] (updated list of project files)
+
+# pseudocode_summarizer\file_handler.py
+2023-09-07 13:22:18
+**Function: read_pseudocode_file**
+
+This function takes a `pseudocode_file` path as an argument and returns a list of `ModulePseudocode` objects. If the `pseudocode_file` does not exist, it creates the file and returns an empty list. 
+
+1. Create an empty list called `pseudocode`.
+2. Check if the `pseudocode_file` does not exist.
+   - If true, create the file and return the empty `pseudocode` list.
+3. Read the contents of the file.
+4. Split the contents into sections using single-hashed headers.
+   - Skip the first (empty) section.
+5. For each section:
+   - Split the section into lines.
+   - Check if there are enough lines.
+     - If not, continue to the next section.
+   - Extract the path from the first line.
+   - Convert the modified timestamp to a datetime object.
+   - Extract the content from the remaining lines.
+   - Create a `ModulePseudocode` object with the extracted values.
+   - Validate the object using Pydantic.
+   - Append the object to the `pseudocode` list.
+6. Return the `pseudocode` list.
+
+**Function: write_pseudocode_file**
+
+This function takes a list of `ModulePseudocode` objects (`pseudocode`) and a `pseudocode_file` path as arguments. It creates a pseudocode.md file based on the `pseudocode` list.
+
+1. Create an empty string called `contents`.
+2. For each `module` in the `pseudocode` list:
+   - Add a single-hashed header with the path to the `contents` string.
+   - Add the modified timestamp to the `contents` string.
+   - Add the content to the `contents` string.
+   - Add a blank line to the `contents` string.
+3. Write the `contents` string to the `pseudocode_file`.
+   - If the `pseudocode` list is not empty, create the parent directory of the `pseudocode_file` if it doesn't exist.
+4. Return None.
+
+**Function: identify_new_and_modified_files**
+
+This function takes a list of `ModulePseudocode` objects (`pseudocode`) and a list of `ProjectFile` objects (`project_files`) as arguments. It filters the `project_files` list to output two lists: `new_files` (files missing from `pseudocode`) and `modified_files` (files with modified timestamps later than those in `pseudocode`).
+
+1. Create a mapping of `path` to `modified` from the `pseudocode` list.
+2. Create empty lists called `new_files` and `modified_files`.
+3. For each `file` in the `project_files` list:
+   - Check if the `path` is not in the `pseudocode` map.
+     - If true, append the `file` to the `new_files` list.
+   - Check if the `modified` timestamp of the `file` is later than the one listed in `pseudocode`.
+     - If true, append the `file` to the `modified_files` list.
+4. Return a tuple containing the `new_files` and `modified_files` lists.
+
+**Function: remove_deleted_files_from_pseudocode**
+
+This function takes a list of `ModulePseudocode` objects (`pseudocode`) and a list of `ProjectFile` objects (`files`) as arguments. It filters the `pseudocode` list to remove any files missing from the `files` list.
+
+1. Convert the `files` list into a set of paths called `file_paths` for faster lookup.
+2. Filter the `pseudocode` list to include only files present in `files`.
+3. Return the filtered `pseudocode` list.
+
+# pseudocode_summarizer\summarize.py
+2023-09-07 14:54:21
+Function: summarize_project_folder(startpath, pseudocode_file, project_map_file, include, api_key, model_name, long_context_fallback, temperature)
+
+1. Set pseudocode_file as the path to the pseudocode file in the startpath directory.
+2. Set project_map_file as the path to the project map file in the startpath directory.
+3. Map the project folder using the startpath and store the list of ProjectFile objects in project_files.
+4. Remove all project_files listed in .gitignore using the startpath and project_files.
+5. Initialize the OpenAI chatbot with the given api_key, temperature, model_name, and cost_tracker callback.
+6. If long_context_fallback is not None, initialize a second chatbot with the same parameters and the long_context_llm callback.
+7. Classify the project_files by project role using the project_map_file, project_files, llm, and long_context_llm.
+8. Keep only the project_files with roles that are in the include list.
+9. Read or create the pseudocode file and get the list of ModulePseudocode objects in pseudocode.
+10. Filter the pseudocode summary to remove any files that have been deleted using the pseudocode and project_files.
+11. Identify the new and modified files since the last summary using the pseudocode and project_files, and store them in new_files and modified_files.
+12. Combine the new_files and modified_files into the files_to_summarize list.
+13. If there are no files_to_summarize and the updated_pseudocode is identical to the pseudocode, exit the function.
+14. Sort the updated_pseudocode and pseudocode lists by path and modified date.
+15. For each file in the files_to_summarize list, summarize the file using the file, llm, and long_context_llm, and store the generated pseudocode in generated_pseudocode.
+16. Add the generated_pseudocode to the updated_pseudocode list.
+17. Write the updated_pseudocode to the pseudocode file.
+18. Print the total cost of the workflow run using the cost_tracker.
+19. Return.
+
+# pseudocode_summarizer\summarizer.py
+2023-09-07 14:23:12
+1. Import the necessary modules and classes:
+   - Import `ModulePseudocode` and `ProjectFile` from the `file_handler` module.
+   - Import `query_llm` from the `chatbot` module.
+   - Import `PromptTemplate` from the `langchain` module.
+   - Import `ChatOpenAI` from the `langchain.chat_models` module.
+
+2. Define a prompt template for generating a pseudocode summary of a code module.
+
+3. Define a function named `summarize_file` that takes three arguments:
+   - `file_to_summarize` of type `ProjectFile`: The file to be summarized.
+   - `llm` of type `ChatOpenAI`: The chatbot used for generating the summary.
+   - `long_context_llm` of type `str`: The long context for the chatbot.
+
+4. Read the content of the file specified by `file_to_summarize` and store it in the variable `input_str`.
+
+5. Query the chatbot using the `query_llm` function, passing the `summarization_prompt` template, `input_str`, `llm`, `long_context_llm`, and `parser` as arguments. Store the generated pseudocode in the variable `generated_pseudocode`.
+
+6. Create a `ModulePseudocode` object named `module_pseudocode` using the `file_to_summarize.path`, `file_to_summarize.modified`, and `generated_pseudocode` as arguments.
+
+7. Return the `module_pseudocode` object as the output of the function.
+
+# pseudocode_summarizer\__init__.py
+2023-09-07 13:38:39
+The code is importing various functions and classes from different modules. It is also defining the "__all__" list to specify the names that should be imported when using the "from . import *" syntax. 
+
+The imported functions and classes include:
+- map_project_folder: a function that maps the project folder
+- remove_gitignored_files: a function that removes gitignored files
+- read_pseudocode_file: a function that reads a pseudocode file
+- write_pseudocode_file: a function that writes a pseudocode file
+- identify_new_and_modified_files: a function that identifies new and modified files
+- classify_new_files: a function that classifies new files
+- remove_deleted_files_from_pseudocode: a function that removes deleted files from pseudocode
+- ModulePseudocode: a class representing module pseudocode
+- ProjectFile: a class representing a project file
+- summarize_file: a function that summarizes a file
+- initialize_model: a function that initializes a model
+- classify_files: a function that classifies files
+- FileClassification: a class representing file classification
+- FileClassificationList: a class representing a list of file classifications
+- summarize_project_folder: a function that summarizes a project folder
+- query_llm: a function that queries a language model
+

@@ -16,7 +16,7 @@ def summarize_project_folder(
             startpath=".",
             pseudocode_file="pseudocode/pseudocode.md",
             project_map_file="pseudocode/project_map.json",
-            include=["source","utility and scripts"],
+            include=["source", "utility scripts"],
             api_key=None,
             model_name="gpt-3.5-turbo",
             long_context_fallback="gpt-3.5-turbo-16k",
@@ -33,24 +33,21 @@ def summarize_project_folder(
     project_files: list[ProjectFile] = remove_gitignored_files(startpath=startpath, project_files=project_files)
 
     # Initialize OpenAI chatbot
-    llm: ChatOpenAI = initialize_model(api_key=api_key, temperature=temperature, model_name=model_name)
+    cost_tracker: OpenAICallbackHandler = OpenAICallbackHandler()
+    llm: ChatOpenAI = initialize_model(api_key=api_key, temperature=temperature, model_name=model_name, callbacks=[cost_tracker])
 
     # If long_context_fallback is not None, initialize a second chatbot
     if long_context_fallback is not None:
-        long_context_llm: ChatOpenAI = initialize_model(api_key=api_key, temperature=temperature, model_name=long_context_fallback)
+        long_context_llm: ChatOpenAI = initialize_model(api_key=api_key, temperature=temperature, model_name=long_context_fallback, callbacks=[cost_tracker])
     else:
         long_context_llm = None
-
-    # Initialize a langchain callback handler
-    callback_handler = OpenAICallbackHandler()
 
     # Classify files by project role
     project_files: list[ProjectFile] = classify_files(
             project_map_file=project_map_file,
             project_files=project_files,
             llm=llm,
-            long_context_llm=long_context_llm,
-            callbacks=[callback_handler]
+            long_context_llm=long_context_llm
         )
 
     # Keep only project files with roles that are in the include list
@@ -78,14 +75,18 @@ def summarize_project_folder(
     # For each file_to_summarize, query the chatbot for an updated_pseudocode summary
     for file in files_to_summarize:
         generated_pseudocode: ModulePseudocode = summarize_file(
-            file_to_summarize=file,
-            llm=llm,
-            long_context_llm=long_context_llm,
-            callbacks=[callback_handler])
+                file_to_summarize=file,
+                llm=llm,
+                long_context_llm=long_context_llm
+            )
+        # Drop any existing pseudocode for the file
+        updated_pseudocode = [pseudocode for pseudocode in updated_pseudocode if pseudocode.path != file.path]
         # Add the output to the updated_pseudocode
         updated_pseudocode.append(generated_pseudocode)
     
     # Write the updated pseudocode to the pseudocode file
     write_pseudocode_file(pseudocode=updated_pseudocode, pseudocode_file=pseudocode_file)
+
+    print("Total cost of workflow run: " + str(object=cost_tracker.total_cost))
 
     return

@@ -1,5 +1,5 @@
 from pathlib import Path
-from pseudocode_summarizer import map_project_folder, remove_gitignored_files, ProjectFile
+from ..pseudocode_summarizer.mapper import map_project_folder, remove_gitignored_files, ProjectFile
 from typing import Generator
 import pytest
 

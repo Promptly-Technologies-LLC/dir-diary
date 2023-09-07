@@ -1,10 +1,11 @@
 import os
 from dotenv import load_dotenv
+from typing import Optional
 from langchain.chat_models import ChatOpenAI
 from langchain import PromptTemplate, LLMChain
-from langchain.callbacks.base import BaseCallbackHandler
 from openai.error import InvalidRequestError
 from langchain.output_parsers import PydanticOutputParser
+from langchain.callbacks import StdOutCallbackHandler
 from pydantic import BaseModel
 
 
@@ -12,7 +13,8 @@ from pydantic import BaseModel
 def initialize_model(
             api_key: str = None,
             temperature: float = 0,
-            model_name: str = "gpt-3.5-turbo"
+            model_name: str = "gpt-3.5-turbo",
+            callbacks: Optional[list] = None
         ) -> ChatOpenAI:
     # If no API key is provided, load it from the .env file or environment
     if api_key is None:
@@ -25,7 +27,8 @@ def initialize_model(
         openai_api_key=api_key,
         model_name=model_name,
         max_tokens=2000,
-        temperature=temperature
+        temperature=temperature,
+        callbacks=callbacks
     )
 
     # Return the chatbot instance
@@ -33,23 +36,23 @@ def initialize_model(
 
 
 # Query a chatbot for structured output with pydantic validation
-def query_llm_for_structured_output(
+def query_llm(
             prompt: PromptTemplate,
             input_str: str,
             llm: ChatOpenAI,
             long_context_llm: ChatOpenAI,
-            callbacks: list[BaseCallbackHandler],
-            parser: PydanticOutputParser) -> BaseModel:
+            parser: Optional[PydanticOutputParser]) -> BaseModel:
+    
     # Create a chatbot chain
     llm_chain: LLMChain = LLMChain(
         llm=llm,
         prompt=prompt,
-        callbacks=callbacks
+        callbacks=[StdOutCallbackHandler()]
     )
 
     # Generate the output from the input
     try:
-        output_str: dict = llm_chain(input_str, callbacks=callbacks)
+        output_str: str = llm_chain.run(input_str=input_str)
     except InvalidRequestError as e:
         # If we exceed context limit, check if long_context_llm is None
         if long_context_llm is None:
@@ -59,10 +62,15 @@ def query_llm_for_structured_output(
             # If long_context_llm is not None, warn and use long_context_llm
             print("Encountered error:\n" + e + "\nTrying again with long_context_fallback.")
             llm_chain.llm = long_context_llm
-            output_str: str = llm_chain(input_str, callbacks=callbacks)
+            output_str: str = llm_chain.run(input_str=input_str)
     
     # Parse the output
-    parsed_output: BaseModel = parser.parse(text=output_str)
+    if parser is None:
+        # If no parser is provided, return the raw output
+        return output_str
+    else:
+        # If a parser is provided, parse the output
+        parsed_output: BaseModel = parser.parse(text=output_str)
 
-    # Return the output
-    return parsed_output
+        # Return the parsed output
+        return parsed_output

@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 import datetime
-from pseudocode_summarizer import summarize_file, ProjectFile, initialize_model, ModulePseudocode
+from ..pseudocode_summarizer.summarizer import summarize_file, ProjectFile, ModulePseudocode
+from ..pseudocode_summarizer.chatbot import initialize_model
 from langchain.chat_models import ChatOpenAI
-from langchain.callbacks import OpenAICallbackHandler
 
 
 # Test summarize_file
@@ -18,18 +18,24 @@ def test_summarize_file() -> None:
         file_to_summarize = ProjectFile(path="test_input.py", modified=0)
         llm: ChatOpenAI = initialize_model(api_key=None, temperature=0, model_name="gpt-3.5-turbo")
         long_context_llm: ChatOpenAI = initialize_model(api_key=None, temperature=0, model_name="gpt-3.5-turbo-16k")
-        callback_handler = OpenAICallbackHandler()
         
         # Run summarize_file
-        result = summarize_file(file_to_summarize=file_to_summarize, llm=llm, long_context_llm=long_context_llm, callbacks=[callback_handler])
+        result = summarize_file(file_to_summarize=file_to_summarize, llm=llm, long_context_llm=long_context_llm)
     finally:
         # Delete the test input file
         os.remove(path="test_input.py")
 
     # Define expected result
-    expected_result = ModulePseudocode(
-        path=Path('test_input.py'), modified=datetime.datetime(year=1970, month=1, day=1, hour=0, minute=0, tzinfo=datetime.timezone.utc), content="Define a function named foo\n\n    Print the string 'Hello, world!'"
-    )
+    expected_path = Path('test_input.py')
+    expected_modified=datetime.datetime(year=1970, month=1, day=1, hour=0, minute=0, tzinfo=datetime.timezone.utc)
+    expected_content=["print","hello"]
 
-    # Assert that the result is as expected
-    assert result == expected_result
+    # Assert that the result is an object of class ModulePseudocode
+    assert isinstance(result, ModulePseudocode)
+
+    # Assert that path and modified are as expected
+    assert result.path == expected_path
+    assert result.modified == expected_modified
+
+    # Assert that content contains the case-agnostic words "print" and "hello"
+    assert all([word in result.content.lower() for word in expected_content])
