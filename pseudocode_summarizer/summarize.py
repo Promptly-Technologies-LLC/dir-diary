@@ -14,8 +14,8 @@ from langchain.callbacks import OpenAICallbackHandler
 # Given a path to a project folder, summarize the folder in pseudocode.md
 def summarize_project_folder(
             startpath=".",
-            pseudocode_file="pseudocode/pseudocode.md",
-            project_map_file="pseudocode/project_map.json",
+            pseudocode_file="docs/pseudocode.md",
+            project_map_file="docs/project_map.json",
             include=["source", "utility scripts"],
             api_key=None,
             model_name="gpt-3.5-turbo",

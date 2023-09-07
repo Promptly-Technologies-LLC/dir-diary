@@ -2,6 +2,7 @@
 name = "pseudocode-summarizer"
 version = "0.1.0"
 description = ""
+license = "MIT"
 authors = ["Christopher Carroll Smith <75859865+chriscarrollsmith@users.noreply.github.com>"]
 readme = "README.md"
 packages = [{include = "pseudocode_summarizer"}]

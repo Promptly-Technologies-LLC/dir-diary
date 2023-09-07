@@ -1,25 +1,3 @@
-# pseudocode_summarizer\legacy.py
-2023-09-05 11:39:30
-The code begins by importing necessary modules and dependencies. It imports the `Literal` type from the `typing` module, the `Path` class from the `pathlib` module, various classes and functions from the `langchain` package, the `BaseModel` and `Field` classes from the `pydantic` module, and the `initialize_model` function from a `chatbot` module.
-
-Next, it defines two data structures using the `BaseModel` class from `pydantic`. The first is the `FileClassification` class, which has two fields: `path` (a string representing the file path relative to the project root) and `classification` (a literal type with possible values of "include" or "ignore" representing whether to include or ignore the file). The second is the `FileClassificationList` class, which has a single field `files` (a list of `FileClassification` objects).
-
-Then, it creates an instance of the `PydanticOutputParser` class, passing in the `FileClassificationList` class as the `pydantic_object` parameter. This parser will be used to parse the output of the chatbot into a `FileClassificationList` object.
-
-After that, it defines a `PromptTemplate` object named `file_classification_prompt`. This object represents a template for a prompt that will be used to query the chatbot. It has a `template` attribute that contains a string with placeholders for variables, an `input_variables` attribute that specifies the names of the variables that will be passed as input to the prompt, and a `partial_variables` attribute that contains a dictionary of partial variables used in the template.
-
-Next, it defines a function named `classify_new_files` that takes in a list of new file paths, an API key, a model name, and a temperature as parameters. Inside the function, it initializes an OpenAI chatbot by calling the `initialize_model` function with the provided API key, temperature, and model name. 
-
-Then, it generates a prompt for the chatbot by calling the `format_prompt` method of the `file_classification_prompt` object, passing in the new file paths as the `file_paths` variable. This generates a string prompt that includes the file paths and format instructions.
-
-The generated prompt is then passed as input to the chatbot by calling the `llm` object with the prompt converted to a list of messages using the `to_messages` method of the `_input` object. The output of the chatbot is stored in the `output` variable.
-
-The output of the chatbot is then parsed into a `FileClassificationList` object by calling the `parse` method of the `parser` object, passing in the content of the output as the `text` parameter. The parsed output is stored in the `parsed_output` variable.
-
-Next, the list of `FileClassifications` in the parsed output is filtered into two separate lists: `include_files` and `ignore_files`. This is done by iterating over each `FileClassification` object in the `files` attribute of the `parsed_output` object and checking its `classification` field. If the `classification` is "include", the file path is added to the `include_files` list. If the `classification` is "ignore", the file path is added to the `ignore_files` list.
-
-Finally, the function returns the `include_files` and `ignore_files` lists as a tuple.
-
 # pseudocode_summarizer\mapper.py
 2023-09-06 12:28:34
 Pseudocode Summary:
@@ -52,69 +30,6 @@ Pseudocode Summary:
     - Import the "map_project_folder" function from the "pseudocode_summarizer" module.
     - Call the "map_project_folder" function with the "startpath" parameter set to "." and assign the result to "paths_list".
     - Iterate over the "paths_list" and print the "path" and "modified" attributes of each entry.
-
-# pseudocode_summarizer\classifier.py
-2023-09-07 14:11:49
-The code includes the following functions and classes:
-
-1. Class: FileClassification
-   - Data structure for LLM classification of project file roles
-   - Attributes:
-     - path: Path (file path relative to the project root)
-     - role: Optional[Literal[...]] (role the file plays in the project)
-
-2. Class: FileClassificationList
-   - Data structure for a list of FileClassifications
-   - Attributes:
-     - files: list[FileClassification] (List of file classifications)
-   - Method: to_json()
-     - Converts a FileClassificationList to a JSON-formatted string
-
-3. Function: initialize_project_map(project_map_path: Path) -> FileClassificationList
-   - Initializes a project map from a JSON file
-   - Arguments:
-     - project_map_path: Path (path to the project map JSON file)
-   - Returns:
-     - FileClassificationList (initialized project map)
-
-4. Function: update_project_map(project_map: FileClassificationList, project_files: list[ProjectFile]) -> FileClassificationList
-   - Updates the project map with new files and removes deleted files
-   - Arguments:
-     - project_map: FileClassificationList (current project map)
-     - project_files: list[ProjectFile] (list of project files)
-   - Returns:
-     - FileClassificationList (updated project map)
-
-5. Class: PydanticOutputParser
-   - Parser for the LLM output
-   - Arguments:
-     - pydantic_object: FileClassificationList
-
-6. Class: PromptTemplate
-   - Prompt template for determining the roles that files play in the project
-   - Attributes:
-     - template: str (template string)
-     - input_variables: list[str] (input variable names)
-     - partial_variables: dict (partial variable names and values)
-     - output_parser: PydanticOutputParser
-
-7. Function: classify_files(project_map_file: Path, project_files: list[ProjectFile], llm: ChatOpenAI, long_context_llm: ChatOpenAI) -> list[ProjectFile]
-   - Queries a chatbot to determine the role that files play in the project
-   - Arguments:
-     - project_map_file: Path (path to the project map JSON file)
-     - project_files: list[ProjectFile] (list of project files)
-     - llm: ChatOpenAI (chatbot for short context)
-     - long_context_llm: ChatOpenAI (chatbot for long context)
-   - Returns:
-     - list[ProjectFile] (updated list of project files)
-
-8. Function: assign_roles(project_map: FileClassificationList, project_files: list[ProjectFile]) -> list[ProjectFile]
-   - Assigns roles to project files based on corresponding roles in project_map
-   - Arguments:
-     - project_map: FileClassificationList (project map with file classifications)
-     - project_files: list[ProjectFile] (list of project files)
-   - Returns:
-     - list[ProjectFile] (updated list of project files)
 
 # pseudocode_summarizer\file_handler.py
 2023-09-07 13:22:18
@@ -249,8 +164,84 @@ Function: summarize_project_folder(startpath, pseudocode_file, project_map_file,
 19. Print the total cost of the workflow run.
 20. Return.
 
+# pseudocode_summarizer\cli.py
+2023-09-07 18:35:38
+The code imports the `summarize_project_folder` function from a module called `summarize`. It also imports the `click` module.
+
+The code defines a command-line interface (CLI) using the `click.command()` decorator. The CLI has several options that can be passed as command-line arguments. The options include `startpath`, `pseudocode_file`, `project_map_file`, `include`, `api_key`, `model_name`, `long_context_fallback`, and `temperature`. Each option has a default value and a help message.
+
+The code defines a function called `cli` that takes the arguments `startpath`, `pseudocode_file`, `project_map_file`, `include`, `api_key`, `model_name`, `long_context_fallback`, and `temperature`. The function is decorated with the `click.command()` decorator.
+
+The function `cli` has a docstring that describes its purpose, which is to summarize a project folder using pseudocode.
+
+Inside the `cli` function, the `summarize_project_folder` function is called with the arguments `startpath`, `pseudocode_file`, `project_map_file`, `include`, `api_key`, `model_name`, `long_context_fallback`, and `temperature`.
+
+# pseudocode_summarizer\classifier.py
+2023-09-07 19:09:42
+The code includes the following functions and classes:
+
+1. Class: FileClassification
+   - Data structure for LLM classification of project file roles
+   - Attributes:
+     - path: Path (file path relative to the project root)
+     - role: Optional[Literal[...]] (role the file plays in the project)
+
+2. Class: FileClassificationList
+   - Data structure for a list of FileClassifications
+   - Attributes:
+     - files: list[FileClassification] (List of file classifications)
+   - Method: to_json()
+     - Converts a FileClassificationList to a JSON-formatted string
+
+3. Function: initialize_project_map(project_map_path: Path) -> FileClassificationList
+   - Initializes a project map from a JSON file
+   - Arguments:
+     - project_map_path: Path (path to the project map JSON file)
+   - Returns:
+     - FileClassificationList (initialized project map)
+
+4. Function: update_project_map(project_map: FileClassificationList, project_files: list[ProjectFile]) -> FileClassificationList
+   - Updates the project map with new files and removes deleted files
+   - Arguments:
+     - project_map: FileClassificationList (current project map)
+     - project_files: list[ProjectFile] (list of project files)
+   - Returns:
+     - FileClassificationList (updated project map)
+
+5. Class: PydanticOutputParser
+   - Parser for the LLM output
+   - Arguments:
+     - pydantic_object: FileClassificationList
+
+6. Class: PromptTemplate
+   - Prompt template for determining the roles that files play in the project
+   - Attributes:
+     - template: str (template string)
+     - input_variables: list[str] (input variable names)
+     - partial_variables: dict (partial variable names and values)
+     - output_parser: PydanticOutputParser
+
+7. Function: classify_files(project_map_file: Path, project_files: list[ProjectFile], llm: ChatOpenAI, long_context_llm: ChatOpenAI) -> list[ProjectFile]
+   - Queries a chatbot to determine the role that files play in the project
+   - Arguments:
+     - project_map_file: Path (path to the project map JSON file)
+     - project_files: list[ProjectFile] (list of project files)
+     - llm: ChatOpenAI (chatbot for short context)
+     - long_context_llm: ChatOpenAI (chatbot for long context)
+   - Returns:
+     - list[ProjectFile] (updated list of project files)
+
+8. Function: assign_roles(project_map: FileClassificationList, project_files: list[ProjectFile]) -> list[ProjectFile]
+   - Assigns roles to project files based on corresponding roles in project_map
+   - Arguments:
+     - project_map: FileClassificationList (project map with file classifications)
+     - project_files: list[ProjectFile] (list of project files)
+   - Returns:
+     - list[ProjectFile] (updated list of project files)
+
 # pseudocode_summarizer\__init__.py
-2023-09-07 18:32:48
-- Import the function `summarize_project_folder` from the module `summarize`
-- Define the list `__all__` with the value `["summarize_project_folder"]`
+2023-09-07 19:24:13
+- Import the `summarize_project_folder` function from the `summarize` module.
+- Import the `read_pseudocode_file` function and the `ModulePseudocode` class from the `file_handler` module.
+- Define the `__all__` list containing the names of the functions and classes that will be accessible when importing this module. The list includes "summarize_project_folder", "read_pseudocode_file", and "ModulePseudocode".
 
