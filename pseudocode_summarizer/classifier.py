@@ -1,8 +1,10 @@
 from .file_handler import ProjectFile
+from .chatbot import query_llm_for_structured_output
 from pathlib import Path
-from langchain import PromptTemplate, LLMChain
+from langchain import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.output_parsers import PydanticOutputParser
+from langchain.callbacks.base import BaseCallbackHandler
 import json
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
@@ -44,7 +46,7 @@ def initialize_project_map(project_map_path: Path) -> FileClassificationList:
     # FileClassificationList
     if project_map_path.exists():
         if project_map_path.stat().st_size == 0:
-            # File exists but is empty, issue a warning and return an empty project map
+            # File exists but is empty, issue a warning return an empty project map
             print("Warning: The project map file is empty. Initializing an empty project map.")
             return project_map
         
@@ -92,7 +94,9 @@ file_classification_prompt: PromptTemplate = PromptTemplate(
 def classify_files(
             project_map_file: Path,
             project_files: list[ProjectFile],
-            llm: ChatOpenAI
+            llm: ChatOpenAI,
+            long_context_llm: ChatOpenAI,
+            callbacks: list[BaseCallbackHandler]
         ) -> list[ProjectFile]:
     # Get the project map from JSON file or initialize an empty one
     project_map: FileClassificationList = initialize_project_map(
@@ -105,22 +109,27 @@ def classify_files(
             project_files=project_files
         )
 
-    # Create a chatbot chain
-    llm_chain: LLMChain = LLMChain(
-        llm=llm,
-        prompt=file_classification_prompt,
-        verbose=True
-    )
+    # If no project_map files have None role, return project_files
+    if not any([file.role is None for file in project_map.files]):
+        return project_files
 
     # Convert the project_map to an input string
-    _input: str = project_map.to_json()
+    input_str: str = project_map.to_json()
 
     # Query the LLM to update the project map
-    output: dict = llm_chain(_input)
-    project_map: FileClassificationList = parser.parse(text=output["text"])
+    project_map: FileClassificationList = query_llm_for_structured_output(
+                prompt=file_classification_prompt,
+                input_str=input_str,
+                llm=llm,
+                long_context_llm=long_context_llm,
+                callbacks=callbacks,
+                parser=parser
+            )
 
     # If project map is not empty, write it to the project_map_file
     if project_map:
+        # Ensure parent directory exists
+        project_map_file.parent.mkdir(parents=True, exist_ok=True)
         with open(file=project_map_file, mode="w") as f:         
             # Write the JSON-formatted project map to the file
             f.write(project_map.to_json())

@@ -3,6 +3,7 @@ from pathlib import Path
 from pseudocode_summarizer import (classify_files, initialize_model,
                                    ProjectFile, FileClassificationList)
 from langchain.chat_models import ChatOpenAI
+from langchain.callbacks import OpenAICallbackHandler
 
 
 # Test classify_new_files
@@ -12,15 +13,19 @@ def test_classify_files() -> None:
     example_file_paths: list[str] = ["/foo/bar.py","/foo/helloworld.py","/README.md"]
     project_files: list[ProjectFile] = [ProjectFile(path=Path(path), modified=0) for path in example_file_paths]
     
-    # Initialize the model
-    llm: ChatOpenAI = initialize_model(api_key=None, temperature=0, model_name="gpt-3.5-turbo")
-    
     try:
+        # Define function arguments
+        llm: ChatOpenAI = initialize_model(api_key=None, temperature=0, model_name="gpt-3.5-turbo")
+        long_context_llm: ChatOpenAI = initialize_model(api_key=None, temperature=0, model_name="gpt-3.5-turbo-16k")
+        callback_handler = OpenAICallbackHandler()
+
         # Run classify_files
         project_map: list[ProjectFile] = classify_files(
                 project_map_file=project_map_file,
                 project_files=project_files,
-                llm=llm
+                llm=llm,
+                long_context_llm=long_context_llm,
+                callbacks=[callback_handler]
             )
     
         # Check that the project map is as expected: "source" for ".py" files,

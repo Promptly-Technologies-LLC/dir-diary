@@ -61,7 +61,7 @@ def read_pseudocode_file(pseudocode_file: Path) -> list[ModulePseudocode]:
 
 
 # Given a list of ModulePseudocode objects, create a pseudocode.md file
-def write_pseudocode_file(pseudocode: list[ModulePseudocode], pseudocode_file) -> None:
+def write_pseudocode_file(pseudocode: list[ModulePseudocode], pseudocode_file: Path) -> None:
     # Create empty string
     contents = ""
 
@@ -72,11 +72,13 @@ def write_pseudocode_file(pseudocode: list[ModulePseudocode], pseudocode_file) -
         # Add the modified timestamp
         contents += str(object=module.modified) + "\n"
         # Add the content
-        contents += module.content + "\n"
+        contents += module.content + "\n\n"
     
     # Write the string to the file
-    with(open(file=pseudocode_file, mode="w")) as f:
-        f.write(contents)
+    if pseudocode:
+        pseudocode_file.parent.mkdir(parents=True, exist_ok=True)
+        with(open(file=pseudocode_file, mode="w")) as f:
+            f.write(contents)
 
 
 # Given a `pseudocode` list of ModulePseudocode objects and a `files` list of

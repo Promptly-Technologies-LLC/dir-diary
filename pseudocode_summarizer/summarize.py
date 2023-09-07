@@ -8,6 +8,7 @@ from .file_handler import (read_pseudocode_file, write_pseudocode_file,
 from .mapper import (map_project_folder, remove_gitignored_files)
 from pathlib import Path
 from langchain.chat_models import ChatOpenAI
+from langchain.callbacks import OpenAICallbackHandler
 
 
 # Given a path to a project folder, summarize the folder in pseudocode.md
@@ -18,7 +19,8 @@ def summarize_project_folder(
             include=["source","utility and scripts"],
             api_key=None,
             model_name="gpt-3.5-turbo",
-            temperature=0.7
+            long_context_fallback="gpt-3.5-turbo-16k",
+            temperature=0
         ) -> None:
     # Get relative file paths by prepending startpath
     pseudocode_file: Path = Path(startpath) / pseudocode_file
@@ -33,11 +35,22 @@ def summarize_project_folder(
     # Initialize OpenAI chatbot
     llm: ChatOpenAI = initialize_model(api_key=api_key, temperature=temperature, model_name=model_name)
 
+    # If long_context_fallback is not None, initialize a second chatbot
+    if long_context_fallback is not None:
+        long_context_llm: ChatOpenAI = initialize_model(api_key=api_key, temperature=temperature, model_name=long_context_fallback)
+    else:
+        long_context_llm = None
+
+    # Initialize a langchain callback handler
+    callback_handler = OpenAICallbackHandler()
+
     # Classify files by project role
     project_files: list[ProjectFile] = classify_files(
             project_map_file=project_map_file,
             project_files=project_files,
-            llm=llm
+            llm=llm,
+            long_context_llm=long_context_llm,
+            callbacks=[callback_handler]
         )
 
     # Keep only project files with roles that are in the include list
@@ -62,13 +75,17 @@ def summarize_project_folder(
     if not files_to_summarize and sorted_updated_pseudocode == sorted_pseudocode:
         return
     
-    # For each modified file, query the chatbot for an updated_pseudocode summary
+    # For each file_to_summarize, query the chatbot for an updated_pseudocode summary
     for file in files_to_summarize:
-        generated_pseudocode: ModulePseudocode = summarize_file(file_to_summarize=file, llm=llm)       
+        generated_pseudocode: ModulePseudocode = summarize_file(
+            file_to_summarize=file,
+            llm=llm,
+            long_context_llm=long_context_llm,
+            callbacks=[callback_handler])
         # Add the output to the updated_pseudocode
         updated_pseudocode.append(generated_pseudocode)
     
     # Write the updated pseudocode to the pseudocode file
-    write_pseudocode_file(pseudocode_dict=updated_pseudocode, pseudocode_file=pseudocode_file)
+    write_pseudocode_file(pseudocode=updated_pseudocode, pseudocode_file=pseudocode_file)
 
     return
