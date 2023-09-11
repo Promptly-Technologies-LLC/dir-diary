@@ -18,7 +18,7 @@ from langchain.callbacks import OpenAICallbackHandler
 def summarize_project_folder(
             startpath: Union[str, PathLike] = ".",
             destination: Union[str, PathLike] = "docs",
-            summary_types: Literal["tech stack", "pseudocode", "usage"] = ["pseudocode"],
+            summary_types: Literal["pseudocode", "usage", "tech stack"] = ["pseudocode"],
             include: list[Literal[
                     "source", "configuration", "build or deployment",
                     "documentation", "testing", "database", "utility scripts",

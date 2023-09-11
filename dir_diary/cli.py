@@ -9,7 +9,7 @@ import click
                     "documentation", "testing", "database", "utility scripts",
                     "assets or data", "specialized"
                 ]), multiple=True, help='Types of files to include.')
-@click.option('--summary_types', default=["pseudocode"], type=click.Choice(["tech stack", "pseudocode", "usage"]), multiple=True, help='Types of summaries to generate.')
+@click.option('--summary_types', default=["pseudocode"], type=click.Choice(["pseudocode", "usage", "tech stack"]), multiple=True, help='Types of summaries to generate.')
 @click.option('--api_key', default=None, type=str, help='API key for OpenAI.')
 @click.option('--model_name', default="gpt-3.5-turbo", type=click.Choice([
                     'gpt-3.5-turbo', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo-0613',

@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 import json
 
 # Define allowed summary types, roles, and models as sets
-ALLOWED_SUMMARY_TYPES = {"tech stack", "pseudocode", "usage"}
+ALLOWED_SUMMARY_TYPES = {"pseudocode", "usage", "tech stack"}
 ALLOWED_ROLES = {"source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", "specialized"}
 ALLOWED_MODELS = {"gpt-3.5-turbo", "gpt-3.5-turbo-0301", "gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613", "gpt-4", "gpt-4-0314", "gpt-4-0613"}
 

@@ -81,7 +81,7 @@ Note that the syntax for setting option flags differs slightly depending on your
 #### Bash/Zsh
 
 ```bash
-summarize --startpath="./my_project" --api_key="your_openai_api_key"
+summarize --startpath="./" --api_key="your_openai_api_key"
 ```
 
 #### PowerShell
