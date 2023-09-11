@@ -94,8 +94,8 @@ summarize --startpath ".\my_project" --api_key "your_openai_api_key"
 
 Option Flags
 - `--startpath`: Specifies the path to the project folder you want to summarize. Defaults to the current directory.
-- `--pseudocode_file`: Sets the output path for the generated pseudocode summary. Defaults to docs/pseudocode.md.
-- `--project_map_file`: Sets the output path for the project map file. Defaults to docs/project_map.json.
+- `--destination`: Specifies the destination folder where generated files will be saved. The folder will be created if does not exist in the startpath directory. Defaults to "docs".
+- `--summary_types`: Specified the types of summaries to generate. Accepts multiple values as a comma-separated list enclosed in square brackets. Valid options are: "pseudocode", "tech stack", and "usage instructions". Only "pseudocode" is currently supported. Defaults to ["pseudocode"].
 - `--include`: Specifies the types of files to include in the summary based on their roles. Accepts multiple values as a comma-separated list enclosed in square brackets. Valid options are: "source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", and "specialized". Defaults to ["source", "utility scripts"].
 - `--api_key`: Your OpenAI API key. An API key is required for the tool to function, but the option flag is not required if you've set the API key as an environment variable.
 - `--model_name`: Specifies the OpenAI model to use for generating the summary. Defaults to "gpt-3.5-turbo". Valid options are: "gpt-3.5-turbo", "gpt-3.5-turbo-0301", "gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613", "gpt-4", "gpt-4-0314", "gpt-4-0613".
@@ -122,6 +122,7 @@ summarize_project_folder(
     model_name="gpt-4",
     long_context_fallback="gpt-4-0314",
     temperature=0.7
+)
 ```
 
 This will generate a pseudocode summary of the "my_project" folder, save it to "./my_project/docs/pseudocode.md", and also create a project map in "./my_project/docs/project_map.json".
@@ -130,10 +131,10 @@ This will generate a pseudocode summary of the "my_project" folder, save it to "
 
 - **`startpath` (Union[str, PathLike], default: ".")**:
   The starting path of the project folder you want to summarize. You can provide this as either a string or a `PathLike` object. The default is the current directory (".").
-- **`pseudocode_file` (Union[str, PathLike], default: "docs/pseudocode.md")**:
-  The path where the generated pseudocode summary will be saved. The default is "docs/pseudocode.md".
-- **`project_map_file` (Union[str, PathLike], default: "docs/project_map.json")**:
-  The path where the project map file will be saved. The default is "docs/project_map.json".
+- **`destination` (Union[str, PathLike], default: "docs")**:
+  The destination folder where generated files will be saved. The folder will be created if does not exist in the startpath directory. You can provide this as either a string or a `PathLike` object. The default is "docs".
+- **`summary_types` (list[Literal], default: ["pseudocode"])**:
+  A list specifying which types of summaries to generate. Valid options are: "pseudocode", "tech stack", and "usage instructions". Only "pseudocode" is currently supported. The default is "pseudocode".
 - **`include` (list[Literal], default: ["source", "utility scripts"])**:
   A list specifying which types of files to include in the summary. Valid options are: "source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", and "specialized". The default is to include "source" and "utility scripts".
 - **`api_key` (str, default: None)**:
@@ -177,4 +178,4 @@ For a more detailed understanding, please refer to the source code, inline comme
 
 - [ ] Add project-level tech stack summarization
 - [ ] Add module-level generation of usage instructions
-- [ ] Add support for LLMs other than OpenAI's
+- [ ] Add support for LLMs other than OpenAI's chat models

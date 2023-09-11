@@ -6,7 +6,7 @@ from .file_handler import (read_pseudocode_file, write_pseudocode_file,
                            remove_deleted_files_from_pseudocode,
                            ModulePseudocode, ProjectFile)
 from .mapper import (map_project_folder, remove_gitignored_files)
-from .datastructures import ALLOWED_ROLES, ALLOWED_MODELS, validate_arguments
+from .datastructures import ALLOWED_SUMMARY_TYPES, ALLOWED_ROLES, ALLOWED_MODELS, validate_arguments
 from pathlib import Path
 from os import PathLike
 from typing import Union, Literal
@@ -17,8 +17,8 @@ from langchain.callbacks import OpenAICallbackHandler
 # Given a path to a project folder, summarize the folder in pseudocode.md
 def summarize_project_folder(
             startpath: Union[str, PathLike] = ".",
-            pseudocode_file: Union[str, PathLike] = "docs/pseudocode.md",
-            project_map_file: Union[str, PathLike] = "docs/project_map.json",
+            destination: Union[str, PathLike] = "docs",
+            summary_types: Literal["tech stack", "pseudocode", "usage"] = ["pseudocode"],
             include: list[Literal[
                     "source", "configuration", "build or deployment",
                     "documentation", "testing", "database", "utility scripts",
@@ -37,14 +37,15 @@ def summarize_project_folder(
         ) -> None:
     # Validate 'include', 'model_name', and 'long_context_fallback' values
     validate_arguments(arguments=[
+        {'var_name': 'summary_types', 'allowed_set': ALLOWED_SUMMARY_TYPES, 'value': summary_types},
         {'var_name': 'include', 'allowed_set': ALLOWED_ROLES, 'value': include},
         {'var_name': 'model_name', 'allowed_set': ALLOWED_MODELS, 'value': model_name},
         {'var_name': 'long_context_fallback', 'allowed_set': ALLOWED_MODELS, 'value': long_context_fallback}
     ])
 
     # Get relative file paths by prepending startpath
-    pseudocode_file: Path = Path(startpath) / pseudocode_file
-    project_map_file: Path = Path(startpath) / project_map_file
+    pseudocode_file: Path = Path(startpath) / Path(destination) / "pseudocode.md"
+    project_map_file: Path = Path(startpath) / Path(destination) / "project_map.json"
     
     # Map the project folder, outputting a list of ProjectFile objects
     project_files: list[ProjectFile] = map_project_folder(startpath=startpath)
