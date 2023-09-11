@@ -3,7 +3,7 @@ name: Summarize Repository
 on:
   workflow_dispatch:
 permissions:
-    contents: write
+  contents: write
 
 jobs:
   summarize:
