@@ -1,8 +1,8 @@
 # test_classifier.py
 from pathlib import Path
-from pseudocode_summarizer.datastructures import FileClassificationList, ProjectFile
-from pseudocode_summarizer.classifier import classify_files
-from pseudocode_summarizer.chatbot import initialize_model
+from dir_diary.datastructures import FileClassificationList, ProjectFile
+from dir_diary.classifier import classify_files
+from dir_diary.chatbot import initialize_model
 from langchain.chat_models import ChatOpenAI
 
 

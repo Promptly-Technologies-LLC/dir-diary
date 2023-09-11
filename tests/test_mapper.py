@@ -1,6 +1,6 @@
 from pathlib import Path
-from pseudocode_summarizer.mapper import map_project_folder, remove_gitignored_files
-from pseudocode_summarizer.datastructures import ProjectFile
+from dir_diary.mapper import map_project_folder, remove_gitignored_files
+from dir_diary.datastructures import ProjectFile
 from typing import Generator
 import pytest
 

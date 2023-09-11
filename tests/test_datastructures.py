@@ -1,7 +1,7 @@
 import pytest
 from typing import get_type_hints
-from pseudocode_summarizer.summarize import summarize_project_folder
-from pseudocode_summarizer.datastructures import ALLOWED_ROLES, ALLOWED_MODELS, ProjectFile, FileClassification, validate_value, validate_arguments
+from dir_diary.summarize import summarize_project_folder
+from dir_diary.datastructures import ALLOWED_ROLES, ALLOWED_MODELS, ProjectFile, FileClassification, validate_value, validate_arguments
 
 
 # Test that the Literal values in FileClassification match the allowed roles

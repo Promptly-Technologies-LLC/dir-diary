@@ -62,7 +62,7 @@ def remove_gitignored_files(startpath=".", project_files: list[ProjectFile]=Proj
 
 
 if __name__ == "__main__":
-    from pseudocode_summarizer import map_project_folder
+    from dir_diary.mapper import map_project_folder
     
     paths_list = map_project_folder(startpath=".")
     for entry in paths_list:
