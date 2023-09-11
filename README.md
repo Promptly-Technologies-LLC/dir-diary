@@ -177,5 +177,4 @@ For a more detailed understanding, please refer to the source code, inline comme
 
 - [ ] Add project-level tech stack summarization
 - [ ] Add module-level generation of usage instructions
-- [ ] Rename to project-summarizer?
 - [ ] Add support for LLMs other than OpenAI's
