@@ -26,16 +26,17 @@ def summarize_project_folder(
                 ]] = ["source", "utility scripts"],
             api_key: str = None,
             model_name: Literal[
-                    'gpt-3.5-turbo', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo-0613',
-                    'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613', 'gpt-4',
-                    'gpt-4-0314', 'gpt-4-0613'
+                    "gpt-3.5-turbo", "gpt-3.5-turbo-0301", "gpt-3.5-turbo-0613",
+                    "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613", "gpt-4",
+                    "gpt-4-0314", "gpt-4-0613"
                 ] = "gpt-3.5-turbo",
             long_context_fallback: Literal[
-                    'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613'
+                    "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613"
                 ] = "gpt-3.5-turbo-16k",
             temperature: float = 0
         ) -> None:
     # Validate 'include', 'model_name', and 'long_context_fallback' values
+    print(f"Debug: summary_types = {summary_types}, type = {type(summary_types)}")
     validate_arguments(arguments=[
         {'var_name': 'summary_types', 'allowed_set': ALLOWED_SUMMARY_TYPES, 'value': summary_types},
         {'var_name': 'include', 'allowed_set': ALLOWED_ROLES, 'value': include},

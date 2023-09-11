@@ -66,6 +66,12 @@ def test_validate_value() -> None:
     # Test with valid role
     validate_value(value="source", allowed_set=ALLOWED_ROLES, var_name="include")
 
+    # Test with valid list of roles
+    validate_value(value="source", allowed_set=ALLOWED_ROLES, var_name=["include"])
+
+    # Test with valid tuple of roles
+    validate_value(value="source", allowed_set=ALLOWED_ROLES, var_name=("include",))
+
     # Test with invalid role
     with pytest.raises(expected_exception=ValueError):
         validate_value(value="invalid_role", allowed_set=ALLOWED_ROLES, var_name="include")
@@ -81,8 +87,10 @@ def test_validate_value() -> None:
 def test_validate_arguments() -> None:
     # Test with valid arguments
     validate_arguments(arguments=[
+        {'var_name': 'summary_types', 'allowed_set': ALLOWED_SUMMARY_TYPES, 'value': ['pseudocode']},
         {'var_name': 'include', 'allowed_set': ALLOWED_ROLES, 'value': ['source', 'utility scripts']},
-        {'var_name': 'model_name', 'allowed_set': ALLOWED_MODELS, 'value': 'gpt-3.5-turbo'}
+        {'var_name': 'model_name', 'allowed_set': ALLOWED_MODELS, 'value': 'gpt-3.5-turbo'},
+        {'var_name': 'long_context_fallback', 'allowed_set': ALLOWED_MODELS, 'value': 'gpt-3.5-turbo-16k'}
     ])
 
     # Test with invalid role value

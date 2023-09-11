@@ -20,7 +20,7 @@ def validate_arguments(arguments) -> None:
         var_name = arg['var_name']
         allowed_set = arg['allowed_set']
         value = arg['value']
-        if isinstance(value, list):
+        if isinstance(value, (list, tuple)):
             for val in value:
                 validate_value(value=val, allowed_set=allowed_set, var_name=var_name)
         else:
