@@ -24,6 +24,9 @@ jobs:
     - name: Run dir-diary summarize command
       run: summarize --startpath="./"
 
+    - name: Stage changes
+      run: git add -A
+
     - name: Check for modified files
       id: git-check
       run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
