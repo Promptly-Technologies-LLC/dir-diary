@@ -34,7 +34,7 @@ def initialize_model(
     return llm
 
 
-# Query a chatbot for structured output with pydantic validation
+# Query a chatbot for pydantic-validated structured or unstructured output
 def query_llm(
             prompt: PromptTemplate,
             input_str: str,

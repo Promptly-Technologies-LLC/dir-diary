@@ -1,39 +1,11 @@
 from .file_handler import ProjectFile
 from .chatbot import query_llm
+from .datastructures import FileClassification, FileClassificationList
 from pathlib import Path
 from langchain import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.output_parsers import PydanticOutputParser
 import json
-from typing import Literal, Optional
-from pydantic import BaseModel, Field
-
-# Data structure for LLM classification of project file roles
-class FileClassification(BaseModel):
-    path: Path = Field(description="file path relative to the project root")
-    role: Optional[Literal[
-            "source", "configuration", "build or deployment", "documentation",
-            "testing", "database", "utility scripts", "assets or data",
-            "specialized"
-        ]] = Field(
-                default=None, description="role the file plays in the project"
-            )
-
-# Data structure for a list of FileClassifications
-class FileClassificationList(BaseModel):
-    files: list[FileClassification] = Field(
-            description="List of file classifications"
-        )
-    
-    # Method to convert a FileClassificationList to a JSON-formatted string
-    def to_json(self) -> str:
-        data_dict = self.dict(exclude_unset=True)
-        
-        # Convert Path objects to str
-        for file in data_dict.get("files", []):
-            file["path"] = str(object=file["path"])
-        
-        return json.dumps(obj=data_dict)
 
 
 # Initialize a project map from a JSON file
@@ -51,7 +23,7 @@ def initialize_project_map(project_map_path: Path) -> FileClassificationList:
         
         with open(file=project_map_path, mode='r') as f:
             project_map_json: list[dict] = json.load(fp=f)
-            project_map: FileClassificationList = FileClassificationList.parse_obj(obj=project_map_json)
+            project_map: FileClassificationList = FileClassificationList.model_validate_json(obj=project_map_json)
     
     # Return the project map
     return project_map

@@ -1,8 +1,9 @@
 import os
 from pathlib import Path
 import datetime
-from ..pseudocode_summarizer.summarizer import summarize_file, ProjectFile, ModulePseudocode
-from ..pseudocode_summarizer.chatbot import initialize_model
+from pseudocode_summarizer.summarizer import summarize_file
+from pseudocode_summarizer.datastructures import ModulePseudocode, ProjectFile
+from pseudocode_summarizer.chatbot import initialize_model
 from langchain.chat_models import ChatOpenAI
 
 

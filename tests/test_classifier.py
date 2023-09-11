@@ -1,8 +1,8 @@
 # test_classifier.py
 from pathlib import Path
-from ..pseudocode_summarizer.file_handler import ProjectFile
-from ..pseudocode_summarizer.classifier import classify_files, FileClassificationList
-from ..pseudocode_summarizer.chatbot import initialize_model
+from pseudocode_summarizer.datastructures import FileClassificationList, ProjectFile
+from pseudocode_summarizer.classifier import classify_files
+from pseudocode_summarizer.chatbot import initialize_model
 from langchain.chat_models import ChatOpenAI
 
 
@@ -36,7 +36,7 @@ def test_classify_files() -> None:
         # that content can be parsed as FileClassificationList
         with open(file=project_map_file, mode="r") as f:
             project_map_file_content = f.read()
-        assert FileClassificationList.parse_raw(b=project_map_file_content)
+        assert FileClassificationList.model_validate_json(json_data=project_map_file_content)
     finally:
         # Delete the test_project_map.json file
         if project_map_file.exists():

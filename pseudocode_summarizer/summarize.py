@@ -6,22 +6,42 @@ from .file_handler import (read_pseudocode_file, write_pseudocode_file,
                            remove_deleted_files_from_pseudocode,
                            ModulePseudocode, ProjectFile)
 from .mapper import (map_project_folder, remove_gitignored_files)
+from .datastructures import ALLOWED_ROLES, ALLOWED_MODELS, validate_arguments
 from pathlib import Path
+from os import PathLike
+from typing import Union, Literal
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks import OpenAICallbackHandler
 
 
 # Given a path to a project folder, summarize the folder in pseudocode.md
 def summarize_project_folder(
-            startpath=".",
-            pseudocode_file="docs/pseudocode.md",
-            project_map_file="docs/project_map.json",
-            include=["source", "utility scripts"],
-            api_key=None,
-            model_name="gpt-3.5-turbo",
-            long_context_fallback="gpt-3.5-turbo-16k",
-            temperature=0
+            startpath: Union[str, PathLike] = ".",
+            pseudocode_file: Union[str, PathLike] = "docs/pseudocode.md",
+            project_map_file: Union[str, PathLike] = "docs/project_map.json",
+            include: list[Literal[
+                    "source", "configuration", "build or deployment",
+                    "documentation", "testing", "database", "utility scripts",
+                    "assets or data", "specialized"
+                ]] = ["source", "utility scripts"],
+            api_key: str = None,
+            model_name: Literal[
+                    'gpt-3.5-turbo', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo-0613',
+                    'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613', 'gpt-4',
+                    'gpt-4-0314', 'gpt-4-0613'
+                ] = "gpt-3.5-turbo",
+            long_context_fallback: Literal[
+                    'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613'
+                ] = "gpt-3.5-turbo-16k",
+            temperature: float = 0
         ) -> None:
+    # Validate 'include', 'model_name', and 'long_context_fallback' values
+    validate_arguments(arguments=[
+        {'var_name': 'include', 'allowed_set': ALLOWED_ROLES, 'value': include},
+        {'var_name': 'model_name', 'allowed_set': ALLOWED_MODELS, 'value': model_name},
+        {'var_name': 'long_context_fallback', 'allowed_set': ALLOWED_MODELS, 'value': long_context_fallback}
+    ])
+
     # Get relative file paths by prepending startpath
     pseudocode_file: Path = Path(startpath) / pseudocode_file
     project_map_file: Path = Path(startpath) / project_map_file

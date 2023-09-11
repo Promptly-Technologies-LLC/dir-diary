@@ -1,21 +1,7 @@
 # file_handler.py
+from .datastructures import ModulePseudocode, ProjectFile
 from pathlib import Path
 from datetime import datetime
-from pydantic import BaseModel, Field, ValidationError
-from typing import Optional, Literal
-
-
-# Define a Pydantic class to hold our pseudocode summary of a module
-class ModulePseudocode(BaseModel):
-    path: Path
-    modified: datetime
-    content: str
-
-# Define a Pydantic class to hold our project file paths and modified times
-class ProjectFile(BaseModel):
-    path: Path
-    modified: datetime
-    role: Optional[Literal["source", "configuration", "build and deployment", "documentation", "testing", "database", "utility and scripts", "assets and data", "specialized"]] = Field(default=None, description="role the file plays in the project")
 
 
 # Given a pseudocode.md file path, create a list of ModulePseudocode objects
@@ -49,10 +35,7 @@ def read_pseudocode_file(pseudocode_file: Path) -> list[ModulePseudocode]:
         # The content is the rest of the lines
         content = "\n".join(lines[2:]).rstrip("\n")
         # Create a ModulePseudocode object and validate with Pydantic
-        try:
-            module = ModulePseudocode(path=path, modified=modified, content=content)
-        except ValidationError as e:
-            raise e
+        module = ModulePseudocode(path=path, modified=modified, content=content)
         #Append dict to the list
         pseudocode.append(module)
     

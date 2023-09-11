@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "pseudocode-summarizer"
-version = "0.1.1"
-description = ""
+version = "0.1.2"
+description = "A Python CLI tool to generate a pseudocode summary of your project folder with LLMs"
 license = "MIT"
-authors = ["Christopher Carroll Smith <75859865+chriscarrollsmith@users.noreply.github.com>"]
+authors = ["Christopher Carroll Smith <christopher.smith@promptlytechnologies.com>"]
 readme = "README.md"
 packages = [{include = "pseudocode_summarizer"}]
 
