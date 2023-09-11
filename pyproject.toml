@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "pseudocode_summarizer"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.8"
 langchain = "^0.0.272"
 python-dotenv = "^1.0.0"
 pydantic = "^2.3.0"
