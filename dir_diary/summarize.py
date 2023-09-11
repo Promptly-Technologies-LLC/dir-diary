@@ -36,7 +36,6 @@ def summarize_project_folder(
             temperature: float = 0
         ) -> None:
     # Validate 'include', 'model_name', and 'long_context_fallback' values
-    print(f"Debug: summary_types = {summary_types}, type = {type(summary_types)}")
     validate_arguments(arguments=[
         {'var_name': 'summary_types', 'allowed_set': ALLOWED_SUMMARY_TYPES, 'value': summary_types},
         {'var_name': 'include', 'allowed_set': ALLOWED_ROLES, 'value': include},
