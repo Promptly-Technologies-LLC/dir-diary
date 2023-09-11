@@ -23,7 +23,7 @@ def initialize_project_map(project_map_path: Path) -> FileClassificationList:
         
         with open(file=project_map_path, mode='r') as f:
             project_map_json: list[dict] = json.load(fp=f)
-            project_map: FileClassificationList = FileClassificationList.model_validate_json(obj=project_map_json)
+            project_map: FileClassificationList = FileClassificationList.model_validate_json(json_data=project_map_json)
     
     # Return the project map
     return project_map
