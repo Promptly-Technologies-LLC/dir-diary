@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dir-diary"
-version = "0.2.5"
+version = "0.2.6"
 description = "A Python CLI tool to summarize your software project folder with LLMs"
 license = "MIT"
 authors = ["Christopher Carroll Smith <christopher.smith@promptlytechnologies.com>"]

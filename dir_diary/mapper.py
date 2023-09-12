@@ -36,7 +36,7 @@ def remove_gitignored_files(startpath=".", project_files: list[ProjectFile]=Proj
     filtered_files = project_files.copy()
 
     # Always remove files with parent .git folder, whether or not they are in a .gitignore file
-    filtered_files = [f for f in filtered_files if ".git" not in f.path.parents]
+    filtered_files = [f for f in filtered_files if all(".git" not in str(parent).split(os.sep) for parent in f.path.parents)]
     
     # Iterate over the .gitignore files
     for file in gitignore_files:

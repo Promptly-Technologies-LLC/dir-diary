@@ -15,7 +15,8 @@ def setup_test_environment(tmp_path: Path) -> Generator[tuple[Path, list[Project
         ProjectFile(path=Path("folder/.gitignore"), modified="2022-01-01 00:00:00"),
         ProjectFile(path=Path(".gitignore"), modified="2022-01-01 00:00:00"),
         ProjectFile(path=Path("dir1/file2.txt"), modified="2022-01-01 00:00:00"),
-        ProjectFile(path=Path("ignored_dir/file_in_ignored_dir.txt"), modified="2022-01-01 00:00:00")
+        ProjectFile(path=Path("ignored_dir/file_in_ignored_dir.txt"), modified="2022-01-01 00:00:00"),
+        ProjectFile(path=Path(".git/file_in_git_dir.txt"), modified="2022-01-01 00:00:00")
     ]
 
     # Create files and directories based on project_files
@@ -57,8 +58,12 @@ def test_map_project_folder(setup_test_environment) -> None:
 
 def test_no_gitignore(setup_test_environment) -> None:
     tmp_path, project_files = setup_test_environment
-    result = remove_gitignored_files(startpath=tmp_path, project_files=[ProjectFile(path=Path("file1.txt"), modified="2022-01-01 00:00:00")])
-    assert len(result) == 1
+    # Remove the .gitignore files
+    project_files = [file for file in project_files if file.path.name != ".gitignore"]
+    result = remove_gitignored_files(startpath=tmp_path, project_files=[ProjectFile(path=Path("file1.txt"), modified="2022-01-01 00:00:00"), ProjectFile(path=Path(".git/file_in_git_dir.txt"), modified="2022-01-01 00:00:00")])
+    # Assert that file in .git folder has been removed but file1.txt has not
+    assert "file1.txt" in [file.path.name for file in result]
+    assert "file_in_git_dir.txt" not in [file.path.name for file in result]
 
 
 def test_root_gitignore(setup_test_environment) -> None:
@@ -67,6 +72,7 @@ def test_root_gitignore(setup_test_environment) -> None:
     remaining_files = [file.path.name for file in result]
     assert "file2.py" in remaining_files
     assert "file1.txt" not in remaining_files
+    assert "file_in_git_dir.txt" not in remaining_files
 
 
 def test_subdir_gitignore(setup_test_environment) -> None:
@@ -74,3 +80,4 @@ def test_subdir_gitignore(setup_test_environment) -> None:
     result = remove_gitignored_files(startpath=tmp_path, project_files=project_files)
     remaining_files = [file.path.name for file in result if file.path.parent == Path("folder")]
     assert "file3.txt" not in remaining_files
+    assert "file_in_git_dir.txt" not in remaining_files
