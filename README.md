@@ -201,6 +201,7 @@ For any issues, please [create an issue on GitHub](https://github.com/Promptly-T
 
 - `summarize.py`: Orchestrates the summarization of the entire project folder.
 - `cli.py`: Defines the command-line interface for the tool.
+- `datastructures.py`: Defines classes and validators for working with data.
 - `mapper.py`: Maps the project folder.
 - `chatbot.py`: Initializes and queries the chatbot model.
 - `classifier.py`: Classifies files' roles by querying the chatbot.
