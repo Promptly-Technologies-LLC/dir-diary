@@ -216,6 +216,7 @@ For a more detailed understanding, please refer to the source code, inline comme
 
 ## To-do
 
+- [ ] Make sure long-context fallback logic is working as intended
 - [ ] Add project-level tech stack summarization
 - [ ] Add module-level generation of usage instructions
 - [ ] Add support for LLMs other than OpenAI's chat models
