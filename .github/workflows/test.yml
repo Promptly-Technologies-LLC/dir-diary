@@ -25,13 +25,14 @@ jobs:
     - name: Check for modified files
       id: git-check
       run: |
-        $ErrorActionPreference = 'Continue'  # Continue on error
         git diff-index --quiet HEAD -- 
         if ($LASTEXITCODE -eq 0) {
           echo "modified=false" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
         } else {
           echo "modified=true" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
         }
+        $LASTEXITCODE = 0  # Reset exit code
+
 
     - name: Commit and push if modified
       if: env.modified == 'true'
