@@ -1,0 +1,44 @@
+name: Simple File Modification and Diff Check
+
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Create or Modify a File
+      run: echo "This is a test." > testfile.txt
+
+    - name: Stage changes
+      run: git add -A
+
+    - name: Check for modified files
+      id: git-check
+      run: |
+        git diff-index --quiet HEAD -- 
+        if ($LASTEXITCODE -eq 0) {
+          echo "modified=false" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+        } else {
+          echo "modified=true" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+        }
+
+    - name: Display modification status
+      run: Write-Host "Modified: $env:modified"
+
+    - name: Commit and push if modified
+      if: env.modified == 'true'
+      run: |
+        git config --global user.name "GitHub Action"
+        git config --global user.email "action@github.com"
+        git commit -m "Automated modification"
+        git push
