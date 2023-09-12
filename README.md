@@ -87,7 +87,7 @@ summarize --startpath="./" --api_key="your_openai_api_key"
 #### PowerShell
 
 ```powershell
-summarize --startpath ".\my_project" --api_key "your_openai_api_key"
+summarize --startpath ".\" --api_key "your_openai_api_key"
 ```
 
 #### Option Flags
