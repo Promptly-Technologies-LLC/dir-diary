@@ -8,6 +8,9 @@ permissions:
 jobs:
   summarize:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
     - name: Checkout code
@@ -19,7 +22,7 @@ jobs:
         install-python: 'true'
 
     - name: Load OpenAI API Key from GitHub Secrets
-      run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+      run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
 
     - name: Run dir-diary summarize command
       run: summarize --startpath="./"
@@ -29,7 +32,7 @@ jobs:
 
     - name: Check for modified files
       id: git-check
-      run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
+      run: echo "::set-output name=modified::$(if (git diff-index --quiet HEAD --) { 'false' } else { 'true' })"
 
     - name: Pull latest changes
       if: steps.git-check.outputs.modified == 'true'
