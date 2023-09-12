@@ -81,13 +81,13 @@ Note that the syntax for setting option flags differs slightly depending on your
 #### Bash/Zsh
 
 ```bash
-summarize --startpath="./" --api_key="your_openai_api_key"
+summarize --startpath="./" --summary_types="pseudocode" --api_key="your_openai_api_key"
 ```
 
-#### PowerShell
+#### PowerShell or Windows CMD
 
 ```powershell
-summarize --startpath ".\" --api_key "your_openai_api_key"
+summarize --startpath ".\" --summary_types "pseudocode" --api_key "your_openai_api_key"
 ```
 
 #### Option Flags
