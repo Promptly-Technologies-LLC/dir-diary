@@ -33,20 +33,22 @@ jobs:
     - name: Check for modified files
       id: git-check
       run: |
-        if ($true) {
+        git diff-index --quiet HEAD -- 
+        if ($LASTEXITCODE -eq 0) {
           echo "modified=false" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
         } else {
           echo "modified=true" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
         }
+        $LASTEXITCODE = 0  # Reset exit code
 
     - name: Pull latest changes
-      if: steps.git-check.outputs.modified == 'true'
+      if: env.modified == 'true'
       run: git pull origin main
 
     - name: Commit and push if modified
-      if: steps.git-check.outputs.modified == 'true'
+      if: env.modified == 'true'
       run: |
         git config --global user.name "GitHub Action"
         git config --global user.email "action@github.com"
-        git commit -m "Automated summarization"
+        git commit -m "Automated modification"
         git push
