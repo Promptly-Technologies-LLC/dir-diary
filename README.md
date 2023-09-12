@@ -28,9 +28,31 @@ pip install .
 
 Setting environment variables for local command-line usage can be done in several ways, depending on your operating system and shell. Here are some methods:
 
-#### 1. Exporting in Shell
+#### 1. Setting a System Environment Variable
 
-You can set an environment variable in your shell session. This will set the variable for the duration of the shell session, making it available to `dir-diary` in the same session. The exact command differs depending on which shell you use.
+If you want to use the `dir-diary` tool frequently on a private system, you may want to set a persistent system environment variable to hold your API key. The method differs depending on your system and shell.
+
+On Linux or MacOS, you can use this Bash command:
+
+```
+echo 'export OPENAI_API_KEY=your_api_key_here` >>~/.bash_profile
+```
+
+In Windows Powershell, you can set a system environment variable from the command line:
+
+```powershell
+[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY','your_api_key_here')
+```
+
+Alternatively, you can set it through the Windows Control Panel:
+
+"Control Panel" > "System" > "Advanced system settings" > "Advanced" > "Environment variables" > "System Variables" > "New"
+"Name": OPENAI_API_KEY
+"Value":your_api_key_here
+
+#### 2. Exporting a Key for a Single Shell Session
+
+You can set an environment variable for the duration of your shell session, making it available to `dir-diary` in the same session. The exact command differs depending on which shell you use.
 
 In Bash, use the `export` command:
 
@@ -50,21 +72,15 @@ In Windows PowerShell, you can use the `$env:` prefix:
 $env:OPENAI_API_KEY="your_api_key_here"
 ```
 
-#### Using an `.env` File
+#### 3. Using an `.env` File
 
-You can also place your environment variables in a `.env` file in the same directory as the repo to be summarized, with the following text:
+You can also place your environment variables in a `.env` file in the directory from which you're running the tool:
 
 ```
 OPENAI_API_KEY=your_api_key_here
 ```
 
-Make sure to replace `your_api_key_here` with your actual API key. 
-
-When you run your script, `load_dotenv()` will load these variables into the environment.
-
-#### Making Environment Variables Permanent
-
-If you find yourself needing to set this environment variable frequently, you may want to add the export command to your shell profile script (e.g., `.bashrc`, `.zshrc` for Unix-like systems) or set it as a system-wide environment variable through system settings.
+When you run your script, the tool will automatically load these variables into the environment.
 
 #### Using an option flag
 
@@ -76,7 +92,7 @@ Before running either the Python or CLI tool, make sure to create a `.gitignore`
 
 You should also add dependency and environment folders such as `node_modules`. Such folders may have hundreds or thousands of files and will cause summarization to fail due to exceeding context length.
 
-### Command-Line Interface
+### Using the Tool from the Command-Line Interface
 
 To summarize a project folder, use the `summarize` command in your shell from the folder you want to summarize. The CLI tool will automatically map the project folder, classify files by their role in the project, and generate a pseudocode summary of all project files with the roles you specify for inclusion in the summary. By default, the tool will create a `docs` folder if one does not already exist, and then will create `project_map.json` and `pseudocode.md` files in that folder. The default paths for these files can be adjusted using the `--pseudocode_file` and `--project_map_file` options.
 
@@ -105,10 +121,10 @@ Option Flags
 - `--include`: Specifies the types of files to include in the summary based on their roles. Accepts multiple values. Valid options are: "source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", and "specialized". Defaults to `--include "source" --include "utility scripts"`.
 - `--api_key`: Your OpenAI API key. An API key is required for the tool to function, but the option flag is not required if you've set the API key as an environment variable.
 - `--model_name`: Specifies the OpenAI model to use for generating the summary. Defaults to `--model_name "gpt-3.5-turbo"`. Valid options are: "gpt-3.5-turbo", "gpt-3.5-turbo-0301", "gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613", "gpt-4", "gpt-4-0314", "gpt-4-0613".
-- `--long_context_fallback`: Specifies the fallback OpenAI model to use when the context is too long for the primary model. Defaults to `--model_name "gpt-3.5-turbo-16k"`. Valid options are: "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613".
+- `--long_context_fallback`: Specifies the fallback OpenAI model to use when the context is too long for the primary model. Defaults to `--long_context_fallback "gpt-3.5-turbo-16k"`. Valid options are: "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613".
 - `--temperature`: Sets the "temperature" for the OpenAI model, affecting the randomness of the output. Defaults to `--temperature 0`.
 
-### Python API
+### Using the Tool from the Python API
 
 Inside a Python script, you can summarize your project folder with the `summarize_project_folder` function, which takes the same arguments as the CLI tool. 
 
