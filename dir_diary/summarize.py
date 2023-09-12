@@ -71,7 +71,9 @@ def summarize_project_folder(
             long_context_llm=long_context_llm
         )
 
-    # Keep only project files with roles that are in the include list
+    # Keep only project files with roles that are in the include list or tuple
+    if isinstance(include, str):
+        include = [include]
     project_files: list[ProjectFile] = [file for file in project_files if file.role in include]
     
     # Read or create the pseudocode file and get ModulePseudocode list
