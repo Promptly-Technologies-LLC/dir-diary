@@ -124,6 +124,10 @@ Option Flags
 - `--long_context_fallback`: Specifies the fallback OpenAI model to use when the context is too long for the primary model. Defaults to `--long_context_fallback "gpt-3.5-turbo-16k"`. Valid options are: "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613".
 - `--temperature`: Sets the "temperature" for the OpenAI model, affecting the randomness of the output. Defaults to `--temperature 0`.
 
+#### Debugging Authentication
+
+I've encountered some langchain authentication errors when running from a local Windows terminal. If you run into this, let me know by opening an issue. The problem doesn't seem to occur in Github Actions runners or if you have a Python virtual environment activated, so you can try activating a venv before using the tool as a workaround.
+
 ### Using the Tool from the Python API
 
 Inside a Python script, you can summarize your project folder with the `summarize_project_folder` function, which takes the same arguments as the CLI tool. 
