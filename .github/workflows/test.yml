@@ -25,6 +25,7 @@ jobs:
     - name: Check for modified files
       id: git-check
       run: |
+        $ErrorActionPreference = 'Continue'  # Continue on error
         git diff-index --quiet HEAD -- 
         if ($LASTEXITCODE -eq 0) {
           echo "modified=false" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
