@@ -32,7 +32,7 @@ jobs:
 
     - name: Check for modified files
       id: git-check
-      run: echo "::set-output name=modified::$(if (git diff-index --quiet HEAD --) { 'false' } else { 'true' })"
+      run: if (git diff-index --quiet HEAD --) { echo "modified=false" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8 } else { echo "modified=true" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8 }
 
     - name: Pull latest changes
       if: steps.git-check.outputs.modified == 'true'
