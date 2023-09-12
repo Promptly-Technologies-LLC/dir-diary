@@ -11,7 +11,7 @@ If you install `dir-diary` via `pip`, the CLI tool should be automatically added
 ### PyPi Installation
 
 ```bash
-pip install dir-diary
+pip install --upgrade dir-diary
 ```
 
 ### Clone from GitHub
