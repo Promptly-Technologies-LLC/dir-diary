@@ -124,9 +124,22 @@ Option Flags
 - `--long_context_fallback`: Specifies the fallback OpenAI model to use when the context is too long for the primary model. Defaults to `--long_context_fallback "gpt-3.5-turbo-16k"`. Valid options are: "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613".
 - `--temperature`: Sets the "temperature" for the OpenAI model, affecting the randomness of the output. Defaults to `--temperature 0`.
 
-#### Debugging Authentication
+#### Debugging Authentication Errors
 
 I've encountered some langchain authentication errors when running from a local Windows terminal. If you run into this, let me know by opening an issue. The problem doesn't seem to occur in Github Actions runners or if you have a Python virtual environment activated, so you can try activating a venv before using the tool as a workaround.
+
+### Using dir-diary as Part of a CI/CD Pipeline
+
+The `dir-diary` tool is primarily intended to be used in an automation workflow or as part of a CI/CD or automation pipeline. For this purpose, we have released a [Github Action](https://github.com/Promptly-Technologies-LLC/setup-dir-diary) that handles setup of the tool, which can be used like this:
+
+```yaml
+- name: Setup Python and dir-diary
+      uses: Promptly-Technologies-LLC/setup-dir-diary@v1
+      with:
+        install-python: 'true'
+```
+
+We have also released a complete [example workflow](https://github.com/Promptly-Technologies-LLC/setup-dir-diary/blob/main/.github/example_workflows/summarize.yml) incorporating this setup action that demonstrates how to automate summarizing a repository and pushing the generated files back to the repo. Note that to use this workflow, you will need to create a Github repository secret named OPENAI_API_KEY with your API access key. Create your secret, add the `summarize.yml` workflow to your repository, and edit to your liking.
 
 ### Using the Tool from the Python API
 
@@ -181,19 +194,6 @@ from dir-diary import read_pseudocode_file, ModulePseudocode
 
 pseudocode: list[ModulePseudocode] = read_pseudocode_file("./docs/pseudocode.md")
 ```
-
-### Using dir-diary as Part of a CI/CD Pipeline
-
-To enable `dir-diary` to be used as part of a CI/CD or automation pipeline, we have released a [Github Action](https://github.com/Promptly-Technologies-LLC/setup-dir-diary) that handles setup of the tool, which can be used like this:
-
-```yaml
-- name: Setup Python and dir-diary
-      uses: Promptly-Technologies-LLC/setup-dir-diary@v1
-      with:
-        install-python: 'true'
-```
-
-We have also released a complete [example workflow](https://github.com/Promptly-Technologies-LLC/setup-dir-diary/blob/main/.github/example_workflows/summarize.yml) incorporating this setup action that demonstrates how to automate summarizing a repository and pushing the generated files back to the repo.
 
 ## Contributing
 
