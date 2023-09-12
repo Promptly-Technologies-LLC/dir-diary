@@ -156,6 +156,19 @@ from dir-diary import read_pseudocode_file, ModulePseudocode
 pseudocode: list[ModulePseudocode] = read_pseudocode_file("./docs/pseudocode.md")
 ```
 
+### Using dir-diary as Part of a CI/CD Pipeline
+
+To enable `dir-diary` to be used as part of a CI/CD or automation pipeline, we have released a [Github Action](https://github.com/Promptly-Technologies-LLC/setup-dir-diary) that handles setup of the tool, which can be used like this:
+
+```yaml
+- name: Setup Python and dir-diary
+      uses: Promptly-Technologies-LLC/setup-dir-diary@v1
+      with:
+        install-python: 'true'
+```
+
+We have also released a complete [example workflow](https://github.com/Promptly-Technologies-LLC/setup-dir-diary/blob/main/.github/example_workflows/summarize.yml) incorporating this setup action that demonstrates how to automate summarizing a repository and pushing the generated files back to the repo.
+
 ## Contributing
 
 We welcome contributions! Feel free to submit pull requests for new features, improvements, or bug fixes. Please make sure to follow best practices and include unit tests using the pytest framework.
