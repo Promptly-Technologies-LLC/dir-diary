@@ -7,7 +7,10 @@ permissions:
 
 jobs:
   summarize:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
     - name: Checkout code
@@ -19,7 +22,7 @@ jobs:
         install-python: 'true'
 
     - name: Load OpenAI API Key from GitHub Secrets
-      run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+      run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
 
     - name: Run dir-diary summarize command
       run: summarize --startpath="./"
@@ -29,16 +32,23 @@ jobs:
 
     - name: Check for modified files
       id: git-check
-      run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
+      run: |
+        git diff-index --quiet HEAD -- 
+        if ($LASTEXITCODE -eq 0) {
+          echo "modified=false" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+        } else {
+          echo "modified=true" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+        }
+        $LASTEXITCODE = 0  # Reset exit code
 
     - name: Pull latest changes
-      if: steps.git-check.outputs.modified == 'true'
+      if: env.modified == 'true'
       run: git pull origin main
 
     - name: Commit and push if modified
-      if: steps.git-check.outputs.modified == 'true'
+      if: env.modified == 'true'
       run: |
         git config --global user.name "GitHub Action"
         git config --global user.email "action@github.com"
-        git commit -m "Automated summarization"
+        git commit -m "Automated modification"
         git push
