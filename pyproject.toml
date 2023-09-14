@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dir-diary"
-version = "0.2.8"
+version = "0.3.0"
 description = "A Python CLI tool to summarize your software project folder with LLMs"
 license = "MIT"
 authors = ["Christopher Carroll Smith <christopher.smith@promptlytechnologies.com>"]
@@ -19,6 +19,7 @@ click = "^8.1.7"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
+pytest-mock = "^3.11.1"
 
 [tool.poetry.scripts]
 summarize = "dir_diary.cli:cli"

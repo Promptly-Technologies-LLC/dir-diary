@@ -8,23 +8,7 @@ import json
 ALLOWED_SUMMARY_TYPES = {"pseudocode", "usage", "tech stack"}
 ALLOWED_ROLES = {"source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", "specialized"}
 ALLOWED_MODELS = {"gpt-3.5-turbo", "gpt-3.5-turbo-0301", "gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613", "gpt-4", "gpt-4-0314", "gpt-4-0613"}
-
-# Generic validation function
-def validate_value(value, allowed_set, var_name) -> None:
-    if value not in allowed_set:
-        raise ValueError(f"The `{var_name}` argument must be one of {allowed_set}")
-
-# Function to validate multiple arguments
-def validate_arguments(arguments) -> None:
-    for arg in arguments:
-        var_name = arg['var_name']
-        allowed_set = arg['allowed_set']
-        value = arg['value']
-        if isinstance(value, (list, tuple)):
-            for val in value:
-                validate_value(value=val, allowed_set=allowed_set, var_name=var_name)
-        else:
-            validate_value(value=value, allowed_set=allowed_set, var_name=var_name)
+ALLOWED_FALLBACKS = {'gpt-4', 'gpt-4-0314', 'gpt-4-0613', 'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613'}
 
 # Data structure for project file metadata (use Literal rather than Enum
 # because it plays nicer with LLM prompting and JSON serialization
@@ -60,7 +44,7 @@ class FileClassificationList(BaseModel):
         return json.dumps(obj=data_dict)
 
 # Data structure to hold the generated module summary
-class ModulePseudocode(BaseModel):
+class ModuleSummary(BaseModel):
     path: Path
     modified: datetime
     content: str

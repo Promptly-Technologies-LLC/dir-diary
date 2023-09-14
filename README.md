@@ -2,16 +2,16 @@
 
 ## Overview
 
-`dir-diary` is a Python library and CLI tool that generates a concise, natural language pseudocode summary of your entire project folder. This summary can serve as an intermediate step in development, documentation writing, or even for embedding your repo for search-and-retrieval or Q&A. The tool leverages GPT-3.5 Turbo to summarize a decent-sized project for just 2-4 cents. Future plans include a Github Action for seamless integration into automated cloud deployment workflows.
+`dir-diary` is a Python library and CLI tool for using LLMs to generate a pseudocode summary and/or summary usage instructions for your entire software project folder. This summary can serve as an intermediate step for development, translation, documentation-writing, or embedding for Q&A. The tool leverages GPT-3.5 Turbo to summarize a decent-sized project for just 2-4 cents. `dir-diary` can be used from the command line, in a Python script, or in an automated cloud deployment workflow via Github Actions (see our custom [setup-dir-diary](https://github.com/Promptly-Technologies-LLC/setup-dir-diary) action and [example workflow](https://github.com/Promptly-Technologies-LLC/setup-dir-diary/blob/main/.github/example_workflows/summarize.yml)).
 
 ## Installation
 
-If you install `dir-diary` via `pip`, the CLI tool should be automatically added to your system PATH. If you encounter issues or have installed it manually, you may need to add it to your PATH manually.
+If you install `dir-diary` via `pip`, the tool should install and be added to your system PATH. If you install it manually, you may need to manually add it to your PATH.
 
 ### PyPi Installation
 
 ```bash
-pip install --upgrade dir-diary
+pip install -U dir-diary
 ```
 
 ### Clone from GitHub
@@ -28,9 +28,31 @@ pip install .
 
 Setting environment variables for local command-line usage can be done in several ways, depending on your operating system and shell. Here are some methods:
 
-#### 1. Exporting in Shell
+#### 1. Setting a System Environment Variable
 
-You can set an environment variable in your shell session. This will set the variable for the duration of the shell session, making it available to `dir-diary` in the same session. The exact command differs depending on which shell you use.
+If you want to use the `dir-diary` tool frequently on a private system, you may want to set a persistent system environment variable to hold your API key. The method differs depending on your system and shell.
+
+On Linux or MacOS, you can use this Bash command:
+
+```
+echo 'export OPENAI_API_KEY=your_api_key_here` >>~/.bash_profile
+```
+
+In Windows Powershell, you can set a system environment variable from the command line:
+
+```powershell
+[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY','your_api_key_here')
+```
+
+Alternatively, you can set it through the Windows Control Panel:
+
+"Control Panel" > "System" > "Advanced system settings" > "Advanced" > "Environment variables" > "System Variables" > "New"
+"Name": OPENAI_API_KEY
+"Value":your_api_key_here
+
+#### 2. Exporting a Key for a Single Shell Session
+
+You can set an environment variable for the duration of your shell session, making it available to `dir-diary` in the same session. The exact command differs depending on which shell you use.
 
 In Bash, use the `export` command:
 
@@ -50,25 +72,19 @@ In Windows PowerShell, you can use the `$env:` prefix:
 $env:OPENAI_API_KEY="your_api_key_here"
 ```
 
-#### Using an `.env` File
+#### 3. Using an `.env` File
 
-You can also place your environment variables in a `.env` file in the same directory as the repo to be summarized, with the following text:
+You can also place your environment variables in a `.env` file in the directory from which you're running the tool:
 
 ```
 OPENAI_API_KEY=your_api_key_here
 ```
 
-Make sure to replace `your_api_key_here` with your actual API key. 
-
-When you run your script, `load_dotenv()` will load these variables into the environment.
-
-#### Making Environment Variables Permanent
-
-If you find yourself needing to set this environment variable frequently, you may want to add the export command to your shell profile script (e.g., `.bashrc`, `.zshrc` for Unix-like systems) or set it as a system-wide environment variable through system settings.
+When you run your script, the tool will automatically load these variables into the environment.
 
 #### Using an option flag
 
-You can also pass your API key as an option flag to the CLI tool (`--api_key="your_openai_api_key"`) or Python API (`api_key="your_openai_api_key"`). For security reasons, this is not recommended, as it will expose your API key in your shell history or command-line history.
+You can also pass your API key as an option flag to the CLI tool (`--api_key="your_openai_api_key"`) or Python API (`api_key="your_openai_api_key"`). For security reasons, this is not recommended, as it will expose your API key in your shell or command-line history.
 
 ### Creating a `.gitignore` file
 
@@ -76,7 +92,7 @@ Before running either the Python or CLI tool, make sure to create a `.gitignore`
 
 You should also add dependency and environment folders such as `node_modules`. Such folders may have hundreds or thousands of files and will cause summarization to fail due to exceeding context length.
 
-### Command-Line Interface
+### Using the Tool from the Command-Line Interface
 
 To summarize a project folder, use the `summarize` command in your shell from the folder you want to summarize. The CLI tool will automatically map the project folder, classify files by their role in the project, and generate a pseudocode summary of all project files with the roles you specify for inclusion in the summary. By default, the tool will create a `docs` folder if one does not already exist, and then will create `project_map.json` and `pseudocode.md` files in that folder. The default paths for these files can be adjusted using the `--pseudocode_file` and `--project_map_file` options.
 
@@ -105,10 +121,27 @@ Option Flags
 - `--include`: Specifies the types of files to include in the summary based on their roles. Accepts multiple values. Valid options are: "source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", and "specialized". Defaults to `--include "source" --include "utility scripts"`.
 - `--api_key`: Your OpenAI API key. An API key is required for the tool to function, but the option flag is not required if you've set the API key as an environment variable.
 - `--model_name`: Specifies the OpenAI model to use for generating the summary. Defaults to `--model_name "gpt-3.5-turbo"`. Valid options are: "gpt-3.5-turbo", "gpt-3.5-turbo-0301", "gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613", "gpt-4", "gpt-4-0314", "gpt-4-0613".
-- `--long_context_fallback`: Specifies the fallback OpenAI model to use when the context is too long for the primary model. Defaults to `--model_name "gpt-3.5-turbo-16k"`. Valid options are: "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613".
+- `--long_context_fallback`: Specifies the fallback OpenAI model to use when the context is too long for the primary model. Defaults to `--long_context_fallback "gpt-3.5-turbo-16k"`. Valid options are: "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613".
 - `--temperature`: Sets the "temperature" for the OpenAI model, affecting the randomness of the output. Defaults to `--temperature 0`.
 
-### Python API
+#### Debugging Authentication Errors
+
+I've encountered some langchain authentication errors when running from a local Windows terminal. If you run into this, let me know by opening an issue. The problem doesn't seem to occur in Github Actions runners or if you have a Python virtual environment activated, so you can try activating a venv before using the tool as a workaround.
+
+### Using dir-diary as Part of a CI/CD Pipeline
+
+The `dir-diary` tool is primarily intended to be used in an automation workflow or as part of a CI/CD or automation pipeline. For this purpose, we have released a [Github Action](https://github.com/Promptly-Technologies-LLC/setup-dir-diary) that handles setup of the tool, which can be used like this:
+
+```yaml
+- name: Setup Python and dir-diary
+      uses: Promptly-Technologies-LLC/setup-dir-diary@v1
+      with:
+        install-python: 'true'
+```
+
+We have also released a complete [example workflow](https://github.com/Promptly-Technologies-LLC/setup-dir-diary/blob/main/.github/example_workflows/summarize.yml) incorporating this setup action that demonstrates how to automate summarizing a repository and pushing the generated files back to the repo. Note that to use this workflow, you will need to create a Github repository secret named OPENAI_API_KEY with your API access key. Create your secret, add the `summarize.yml` workflow to your repository, and edit to your liking.
+
+### Using the Tool from the Python API
 
 Inside a Python script, you can summarize your project folder with the `summarize_project_folder` function, which takes the same arguments as the CLI tool. 
 
@@ -162,19 +195,6 @@ from dir-diary import read_pseudocode_file, ModulePseudocode
 pseudocode: list[ModulePseudocode] = read_pseudocode_file("./docs/pseudocode.md")
 ```
 
-### Using dir-diary as Part of a CI/CD Pipeline
-
-To enable `dir-diary` to be used as part of a CI/CD or automation pipeline, we have released a [Github Action](https://github.com/Promptly-Technologies-LLC/setup-dir-diary) that handles setup of the tool, which can be used like this:
-
-```yaml
-- name: Setup Python and dir-diary
-      uses: Promptly-Technologies-LLC/setup-dir-diary@v1
-      with:
-        install-python: 'true'
-```
-
-We have also released a complete [example workflow](https://github.com/Promptly-Technologies-LLC/setup-dir-diary/blob/main/.github/example_workflows/summarize.yml) incorporating this setup action that demonstrates how to automate summarizing a repository and pushing the generated files back to the repo.
-
 ## Contributing
 
 We welcome contributions! Feel free to submit pull requests for new features, improvements, or bug fixes. Please make sure to follow best practices and include unit tests using the pytest framework.
@@ -185,6 +205,7 @@ For any issues, please [create an issue on GitHub](https://github.com/Promptly-T
 
 - `summarize.py`: Orchestrates the summarization of the entire project folder.
 - `cli.py`: Defines the command-line interface for the tool.
+- `datastructures.py`: Defines classes and validators for working with data.
 - `mapper.py`: Maps the project folder.
 - `chatbot.py`: Initializes and queries the chatbot model.
 - `classifier.py`: Classifies files' roles by querying the chatbot.
@@ -195,6 +216,10 @@ For a more detailed understanding, please refer to the source code, inline comme
 
 ## To-do
 
+- [ ] Fix the way we handle exceeding context length (use `llm_cost_estimation.models`?)
+- [ ] Make summarization API calls asynchronous to reduce runtime
 - [ ] Add project-level tech stack summarization
-- [ ] Add module-level generation of usage instructions
+- [ ] Remove langchain because it's too buggy?
 - [ ] Add support for LLMs other than OpenAI's chat models
+- [ ] Do some YouTube explainers
+- [ ] Add more unit tests

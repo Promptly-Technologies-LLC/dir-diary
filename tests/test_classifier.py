@@ -4,13 +4,19 @@ import pytest
 import json
 from dir_diary.datastructures import FileClassificationList, ProjectFile
 from dir_diary.classifier import classify_files, initialize_project_map
-from dir_diary.chatbot import initialize_model
-from langchain.chat_models import ChatOpenAI
+from dir_diary.chatbot import LLMClient
 
 @pytest.fixture
 def setup_project_map_file(tmp_path) -> Path:
     project_map_path = tmp_path / "project_map.json"
     yield project_map_path
+
+# Define pytest fixture for resetting singleton
+@pytest.fixture
+def reset_singleton():
+    LLMClient._instance = None
+    LLMClient._initialized = False
+    yield
 
 
 # Test initialize_project_map
@@ -54,23 +60,17 @@ def test_initialize_project_map_file_does_not_exist(setup_project_map_file) -> N
 
 
 # Test classify_new_files
-def test_classify_files() -> None:
+def test_classify_files(reset_singleton) -> None:
     # Create a test project map file and some example files
     project_map_file = Path("test_project_map.json")
     example_file_paths: list[str] = ["/foo/bar.py","/foo/helloworld.py","/README.md"]
     project_files: list[ProjectFile] = [ProjectFile(path=Path(path), modified=0) for path in example_file_paths]
     
     try:
-        # Define function arguments
-        llm: ChatOpenAI = initialize_model(api_key=None, temperature=0, model_name="gpt-3.5-turbo")
-        long_context_llm: ChatOpenAI = initialize_model(api_key=None, temperature=0, model_name="gpt-3.5-turbo-16k")
-
         # Run classify_files
         project_map: list[ProjectFile] = classify_files(
                 project_map_file=project_map_file,
-                project_files=project_files,
-                llm=llm,
-                long_context_llm=long_context_llm
+                project_files=project_files
             )
     
         # Check that the project map is as expected: "source" for ".py" files,
