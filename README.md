@@ -217,9 +217,11 @@ For a more detailed understanding, please refer to the source code, inline comme
 ## To-do
 
 - [ ] Fix the way we handle exceeding context length (use `llm_cost_estimation.models`?)
+- [ ] Add a check that no lines in the summary begin with a hashtag
+- [ ] Add error handling for an unparseable summary file
 - [ ] Make summarization API calls asynchronous to reduce runtime
-- [ ] Add project-level tech stack summarization
+- [ ] Add tech stack summarization feature
 - [ ] Remove langchain because it's too buggy?
 - [ ] Add support for LLMs other than OpenAI's chat models
-- [ ] Do some YouTube explainers
+- [ ] Do some YouTube explainers/demos
 - [ ] Add more unit tests

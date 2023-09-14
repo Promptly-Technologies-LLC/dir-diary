@@ -61,6 +61,7 @@
 14. Create a new `Path` object by concatenating the `startpath` and `destination`.
 
 15. Check if the `startpath` does not have read permission. If it does not, raise a `PermissionError` with a message indicating that read permission is required for the `startpath`.
+
 # dir_diary\classifier.py
 2023-09-12 20:59:27
 The code includes the following functions and classes:
