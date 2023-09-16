@@ -216,8 +216,8 @@ For a more detailed understanding, please refer to the source code, inline comme
 
 ## To-do
 
-- [x] Remove langchain because of breaking authentication bug? (Increased latency but reduced reported cost, although this may be because langchain miscalculates cost)
-- [ ] Add console logging of prompts and completions
+- [ ] Replace print statements with proper console logs
+- [ ] Add console logging to the folder mapping step, and see if we can improve speed for this step
 - [ ] Deal with condition where LLM response['choices']['finish_reason'] == 'length' (success code but response exceeds context length)
 - [ ] Fix the way we handle exceeding context length (add filtering, splitting)
 - [ ] Use `llm_cost_estimation.models` to get max_tokens
