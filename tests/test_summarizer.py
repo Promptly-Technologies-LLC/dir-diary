@@ -2,9 +2,10 @@ import pytest
 import os
 from pathlib import Path
 import datetime
+import time
 from dir_diary.summarizer import summarize_file, replace_hashtags
 from dir_diary.datastructures import ModuleSummary, ProjectFile
-from dir_diary.langchain_chatbot import LLMClient
+from dir_diary.client import LLMClient
 
 
 # Define pytest fixture for resetting singleton
@@ -26,14 +27,22 @@ def test_summarize_file(reset_singleton) -> None:
     
     try:
         # Define function arguments
+        start_time = time.perf_counter()
+        start_cost = client.total_cost
         file_to_summarize = ProjectFile(path="test_input.py", modified=0)
         
         # Run summarize_file
         pseudocode_result = summarize_file(file_to_summarize=file_to_summarize, summary_type="pseudocode")
+        print(pseudocode_result)
         initial_cost = client.total_cost
 
         usage_result = summarize_file(file_to_summarize=file_to_summarize, summary_type="usage")
+        print(usage_result)
         final_cost = client.total_cost
+        elapsed_time = time.perf_counter() - start_time
+        elapsed_cost = client.total_cost - start_cost
+
+        print(f"Elapsed Time: {elapsed_time:.10f}, Elapsed Cost: {elapsed_cost:.10f}")
     finally:
         # Delete the test input file
         os.remove(path="test_input.py")
@@ -41,7 +50,7 @@ def test_summarize_file(reset_singleton) -> None:
     # Define expected result
     expected_path = Path('test_input.py')
     expected_modified=datetime.datetime(year=1970, month=1, day=1, hour=0, minute=0, tzinfo=datetime.timezone.utc)
-    expected_content=["print","hello"]
+    expected_content=["hello", "world"]
 
     # Assert that the result is an object of class ModuleSummary
     assert isinstance(pseudocode_result, ModuleSummary)

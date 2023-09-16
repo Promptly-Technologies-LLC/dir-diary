@@ -1,127 +1,110 @@
-# dir_diary\chatbot.py
-2023-09-11 12:28:20
-To use the code, you will need to import several modules and classes. Here are the steps to follow:
-
-1. Import the necessary modules:
-   - `os`: This module provides a way to interact with the operating system.
-   - `dotenv`: This module is used to load environment variables from a .env file.
-   - `typing`: This module provides support for type hints.
-   - `langchain.chat_models`: This module contains the `ChatOpenAI` class.
-   - `langchain`: This module contains the `PromptTemplate` and `LLMChain` classes.
-   - `openai.error`: This module contains the `InvalidRequestError` class.
-   - `langchain.output_parsers`: This module contains the `PydanticOutputParser` class.
-   - `langchain.callbacks`: This module contains the `StdOutCallbackHandler` class.
-   - `pydantic`: This module contains the `BaseModel` class.
-
-2. Initialize the OpenAI chatbot:
-   - Call the `initialize_model` function with the following parameters:
-     - `api_key` (optional): The API key for OpenAI. If not provided, it will be loaded from the .env file or environment.
-     - `temperature` (optional): The temperature parameter for the chatbot. Default is 0.
-     - `model_name` (optional): The name of the chatbot model. Default is "gpt-3.5-turbo".
-     - `callbacks` (optional): A list of callback functions to handle events during the chatbot's execution.
-   - This function returns an instance of the `ChatOpenAI` class.
-
-3. Query the chatbot for output:
-   - Call the `query_llm` function with the following parameters:
-     - `prompt`: A template for the chatbot's prompt.
-     - `input_str`: The input string to be processed by the chatbot.
-     - `llm`: An instance of the `ChatOpenAI` class.
-     - `long_context_llm`: An optional instance of the `ChatOpenAI` class to be used as a fallback if the context limit is exceeded.
-     - `parser`: An optional instance of the `PydanticOutputParser` class to parse the output.
-   - This function returns a `BaseModel` object that represents the parsed output.
-
-Note: The data types of the arguments and return values are inferred based on the code, but there may be uncertainties for types and classes imported from outside this module.
-
 # dir_diary\classifier.py
-2023-09-13 10:25:47
-To use the code, follow these instructions:
-
-1. Import the necessary modules and classes:
-   - `from .file_handler import ProjectFile`
-   - `from .chatbot import query_llm`
-   - `from .datastructures import FileClassification, FileClassificationList`
-   - `from pathlib import Path`
-   - `from langchain import PromptTemplate`
-   - `from langchain.chat_models import ChatOpenAI`
-   - `from langchain.output_parsers import PydanticOutputParser`
-   - `import json`
-
-2. Initialize a project map from a JSON file by calling the `initialize_project_map` function and passing the path to the project map file as an argument. This function returns a `FileClassificationList` object.
-
-3. Update the project map with new files and remove deleted files by calling the `update_project_map` function and passing the project map (`FileClassificationList`) and a list of `ProjectFile` objects as arguments. This function returns the updated project map (`FileClassificationList`).
-
-4. Use the `PydanticOutputParser` class to parse the output of the LLM (Language Model) and create a parser object:
-   - `parser = PydanticOutputParser(pydantic_object=FileClassificationList)`
-
-5. Create a prompt template for determining the roles that files play in the project using the `PromptTemplate` class. Pass the template string, input variables, partial variables, and the output parser object as arguments:
-   - `file_classification_prompt: PromptTemplate = PromptTemplate(...)`
-
-6. Query a chatbot to determine the role that files play in the project by calling the `classify_files` function and passing the project map file path (`Path`), a list of `ProjectFile` objects, the LLM object (`ChatOpenAI`), and the long context LLM object (`ChatOpenAI`) as arguments. This function returns a list of updated `ProjectFile` objects.
-
-7. If needed, you can also call the `assign_roles` function separately to assign roles to project files based on corresponding roles in the project map. Pass the project map (`FileClassificationList`) and a list of `ProjectFile` objects as arguments. This function returns the updated list of `ProjectFile` objects.
-
-Note: The specific data types and usage of imported classes and functions from external modules are not provided in the code snippet. Please refer to the documentation or source code of those modules for more information.
-
-# dir_diary\cli.py
-2023-09-13 15:02:10
-To use the code, follow these steps:
-
-1. Import the `summarize_project_folder` function from the `summarize` module in the current package.
-2. Import the `click` module.
-3. Import the `pprint` module.
-
-To create an instance of the command line interface (CLI) and invoke its methods:
-
-4. Create an instance of the CLI by calling the `click.command()` decorator on a function.
-5. Use the `@click.option()` decorator to define command line options for the CLI. The options include:
-   - `--startpath`: Specifies the path to the project folder. It has a default value of `"."` (current directory) and expects a string as input.
-   - `--destination`: Specifies the destination folder for the generated files. It has a default value of `"docs"` and expects a string as input.
-   - `--include`: Specifies the types of files to include in the summary. It has a default value of `["source", "utility scripts"]` and expects multiple string inputs. The valid choices are: "source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", and "specialized".
-   - `--summary_types`: Specifies the types of summaries to generate. It has a default value of `["pseudocode"]` and expects multiple string inputs. The valid choices are: "pseudocode", "usage", and "tech stack".
-   - `--api_key`: Specifies the API key for OpenAI. It has a default value of `None` and expects a string as input.
-   - `--model_name`: Specifies the name of the OpenAI model to use. It has a default value of `"gpt-3.5-turbo"` and expects a string as input. The valid choices are: 'gpt-3.5-turbo', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo-0613', 'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613', 'gpt-4', 'gpt-4-0314', and 'gpt-4-0613'.
-   - `--long_context_fallback`: Specifies the fallback model for long context. It has a default value of `'gpt-3.5-turbo-16k'` and expects a string as input. The valid choices are: 'gpt-3.5-turbo-16k' and 'gpt-3.5-turbo-16k-0613'.
-   - `--temperature`: Specifies the temperature for the OpenAI model. It has a default value of `0` and expects a float as input.
-6. Define a function that serves as the entry point for the CLI. This function should have the same name as the CLI instance created in step 4 and should have the `startpath`, `destination`, `summary_types`, `include`, `api_key`, `model_name`, `long_context_fallback`, and `temperature` parameters.
-7. Add a docstring to the function to provide a brief description of what the CLI does.
-8. Inside the function, call the `summarize_project_folder` function with the following arguments:
-   - `startpath`: The value of the `startpath` parameter.
-   - `destination`: The value of the `destination` parameter.
-   - `summary_types`: The value of the `summary_types` parameter.
-   - `include`: The value of the `include` parameter.
-   - `api_key`: The value of the `api_key` parameter.
-   - `model_name`: The value of the `model_name` parameter.
-   - `long_context_fallback`: The value of the `long_context_fallback` parameter.
-   - `temperature`: The value of the `temperature` parameter.
-
-Here is an example of how to use the code:
+2023-09-16 16:25:57
+To use the code, you will need to import several modules and objects:
 
 ```python
-from .summarize import summarize_project_folder
-import click
-import pprint
+from .file_handler import ProjectFile
+from .openai_chatbot import classify_with_openai
+from .datastructures import FileClassification, FileClassificationList
+from pathlib import Path
+import json
+```
 
+To initialize a project map from a JSON file, use the `initialize_project_map` function. Pass in the path to the project map JSON file as a `Path` object. The function will return a `FileClassificationList` object, which represents the project map.
+
+```python
+project_map_path = Path("path/to/project_map.json")
+project_map = initialize_project_map(project_map_path)
+```
+
+To update the project map with new files and remove deleted files, use the `update_project_map` function. Pass in the current project map as a `FileClassificationList` object and a list of `ProjectFile` objects representing the new files. The function will return the updated project map.
+
+```python
+new_files = [ProjectFile(path="path/to/new_file.png"), ProjectFile(path="path/to/another_file.txt")]
+updated_project_map = update_project_map(project_map, new_files)
+```
+
+To query a chatbot to determine the role that files play in the project, use the `classify_files` function. Pass in the path to the project map JSON file and a list of `ProjectFile` objects representing the project files. The function will return a list of `ProjectFile` objects with assigned roles.
+
+```python
+project_map_file = Path("path/to/project_map.json")
+project_files = [ProjectFile(path="path/to/file.png"), ProjectFile(path="path/to/another_file.txt")]
+updated_project_files = classify_files(project_map_file, project_files)
+```
+
+There is also a helper function `assign_roles` that is used within `classify_files` to assign roles to project files based on corresponding roles in the project map. The function takes in the project map (`FileClassificationList`) and a list of project files (`list[ProjectFile]`) and returns the updated list of project files.
+
+```python
+project_map = FileClassificationList(files=[FileClassification(path="path/to/file.png", role="image"), FileClassification(path="path/to/another_file.txt", role="text")])
+project_files = [ProjectFile(path="path/to/file.png"), ProjectFile(path="path/to/another_file.txt")]
+updated_project_files = assign_roles(project_map, project_files)
+```
+
+Please note that some data types and classes used in the code, such as `ProjectFile`, `FileClassification`, and `FileClassificationList`, are imported from other modules (`file_handler`, `openai_chatbot`, and `datastructures`). The specific usage of these classes and functions cannot be inferred from the code provided, so you will need to refer to the corresponding modules for more information.
+
+# dir_diary\cli.py
+2023-09-15 14:31:43
+To use the provided code, follow these steps:
+
+1. Import the `summarize_project_folder` function from the `summarize` module within the package.
+- Example: `from .summarize import summarize_project_folder`
+
+2. Import the `click` module for command-line interface functionality.
+- Example: `import click`
+
+3. Create a command-line interface by decorating a function with `@click.command()`.
+- Example:
+```python
 @click.command()
-@click.option('--startpath', default=".", type=click.Path(), help='Path to the project folder.')
-@click.option('--destination', default="docs", type=click.Path(), help='Destination folder for the generated files.')
-@click.option('--include', default=["source", "utility scripts"], type=click.Choice([
-                    "source", "configuration", "build or deployment",
-                    "documentation", "testing", "database", "utility scripts",
-                    "assets or data", "specialized"
-                ]), multiple=True, help='Types of files to include.')
-@click.option('--summary_types', default=["pseudocode"], type=click.Choice(["pseudocode", "usage", "tech stack"]), multiple=True, help='Types of summaries to generate.')
-@click.option('--api_key', default=None, type=str, help='API key for OpenAI.')
-@click.option('--model_name', default="gpt-3.5-turbo", type=click.Choice([
-                    'gpt-3.5-turbo', 'gpt-3.5-turbo-0301', 'gpt-3.5-turbo-0613',
-                    'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613', 'gpt-4',
-                    'gpt-4-0314', 'gpt-4-0613'
-                ]), help='Name of the OpenAI model.')
-@click.option('--long_context_fallback', default="gpt-3.5-turbo-16k", type=click.Choice([
-                    'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613'
-                ]), help='Fallback model for long context.')
-@click.option('--temperature', default=0, type=float, help='Temperature for the OpenAI model.')
 def cli(startpath: str, destination: str, summary_types: list[str], include: list[str], api_key: str, model_name: str, long_context_fallback: str, temperature: float) -> None:
-    """Summarize a project folder using pseudocode."""    
+    """
+    Summarize a project folder using pseudocode.
+    """
+```
+
+4. Use the `@click.option()` decorator to define command-line options with their respective data types and default values.
+- Available options:
+  - `--startpath`: Path to the project folder. Default value is `"."`.
+  - `--destination`: Destination folder for the generated files. Default value is `"docs"`.
+  - `--include`: Types of files to include. Default value is `["source", "utility scripts"]`. Valid choices include:
+    - `"source"`
+    - `"configuration"`
+    - `"build or deployment"`
+    - `"documentation"`
+    - `"testing"`
+    - `"database"`
+    - `"utility scripts"`
+    - `"assets or data"`
+    - `"specialized"`
+  - `--summary_types`: Types of summaries to generate. Default value is `["pseudocode"]`. Valid choices include:
+    - `"pseudocode"`
+    - `"usage"`
+    - `"tech stack"`
+  - `--api_key`: API key for OpenAI. Default value is `None`.
+  - `--model_name`: Name of the OpenAI model. Default value is `"gpt-3.5-turbo"`. Valid choices include:
+    - `"gpt-3.5-turbo"`
+    - `"gpt-3.5-turbo-0301"`
+    - `"gpt-3.5-turbo-0613"`
+    - `"gpt-3.5-turbo-16k"`
+    - `"gpt-3.5-turbo-16k-0613"`
+    - `"gpt-4"`
+    - `"gpt-4-0314"`
+    - `"gpt-4-0613"`
+  - `--long_context_fallback`: Fallback model for long context. Default value is `"gpt-3.5-turbo-16k"`. Valid choices include:
+   - `"gpt-4"`
+   - `"gpt-4-0314"`
+   - `"gpt-4-0613"`
+   - `"gpt-3.5-turbo-16k"`
+   - `"gpt-3.5-turbo-16k-0613"`
+  - `--temperature`: Temperature for the OpenAI model. Default value is 0.
+  
+5. Define the function body for the command-line interface function. In this case, the function calls the `summarize_project_folder` function with the provided arguments.
+- Example:
+```python
+def cli(startpath: str, destination: str, summary_types: list[str], include: list[str], api_key: str, model_name: str, long_context_fallback: str, temperature: float) -> None:
+    """
+    Summarize a project folder using pseudocode.
+    """
     summarize_project_folder(
         startpath=startpath, 
         destination=destination,
@@ -134,326 +117,587 @@ def cli(startpath: str, destination: str, summary_types: list[str], include: lis
     )
 ```
 
-To use the CLI, run the following command:
+6. To invoke the command-line interface and run the code, execute the Python script with the appropriate command-line arguments.
+- Example: `python my_script.py --startpath /path/to/project --destination /path/to/destination`
 
-```python
-cli()
-```
+Note: The specific functionality and expected data types of the `summarize_project_folder` function and any imported functions or classes from other modules are not provided in the code and may need to be inferred from the actual implementation in those modules.
 
-Make sure to provide the appropriate values for the command line options when running the command.
-
-# dir_diary\datastructures.py
-2023-09-13 16:59:12
+# dir_diary\client.py
+2023-09-15 18:06:26
 To use the provided code, follow these instructions:
 
 1. Import the necessary modules:
-   - `typing` module with `Optional` and `Literal` types
-   - `pathlib` module with `Path` class
-   - `datetime` module with `datetime` class
-   - `pydantic` module with `BaseModel` and `Field` classes
-   - `json` module
+   - `from .validators import validate_temperature, validate_api_key` (uncertain origin)
+   - `from dotenv import load_dotenv`
+   - `from os import getenv`
+   - `from typing import Optional, Union`
 
-2. Define the allowed summary types, roles, models, and fallbacks as sets:
-   - `ALLOWED_SUMMARY_TYPES` set with values: "pseudocode", "usage", "tech stack"
-   - `ALLOWED_ROLES` set with values: "source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", "specialized"
-   - `ALLOWED_MODELS` set with values: "gpt-3.5-turbo", "gpt-3.5-turbo-0301", "gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613", "gpt-4", "gpt-4-0314", "gpt-4-0613"
-   - `ALLOWED_FALLBACKS` set with values: "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613"
+2. Create an instance of the `LLMClient` class:
+   - `client = LLMClient(api_key, model_name, long_context_fallback, temperature, total_cost)`
 
-3. Define the `ProjectFile` class:
-   - It extends the `BaseModel` class from `pydantic`.
-   - It has two attributes:
-     - `path` of type `Path` from `pathlib` module.
-     - `modified` of type `datetime` from `datetime` module.
-   - It has an optional attribute `role` of type `Literal` with allowed values: "source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", "specialized". The default value is `None`.
-   - The `role` attribute is described as the role the file plays in the project.
+3. Use the `api_key`, `model_name`, `long_context_fallback`, `temperature`, and `total_cost` variables as arguments when creating the instance. These arguments have the following data types:
+   - `api_key: Optional[str]` (optional) - Represents the API key as a string. It can be obtained from the .env file or environment. If not provided, it will be loaded from the .env file or environment using `load_dotenv()` and `getenv(key="OPENAI_API_KEY")`.
+   - `model_name: str` - Represents the name of the model as a string.
+   - `long_context_fallback: Optional[str]` (optional) - Represents the name of the long context fallback as a string. If not provided, it defaults to "gpt-3.5-turbo-16k".
+   - `temperature: float` - Represents the temperature value as a float. It is used to control the randomness of the generated text.
+   - `total_cost: Optional[Union[float, int]]` (optional) - Represents the total cost as either a float or an integer. If not provided, it defaults to 0.
 
-4. Define the `FileClassification` class:
-   - It extends the `BaseModel` class from `pydantic`.
-   - It has two attributes:
-     - `path` of type `Path` from `pathlib` module, described as the file path relative to the project root.
-     - `role` of type `Literal` with allowed values: "source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", "specialized". The default value is `None`.
-   - The `role` attribute is described as the role the file plays in the project.
+4. Any subsequent calls to create an instance of `LLMClient` will return the same instance, as it is implemented as a Singleton pattern.
+   - `client = LLMClient()` (returns the existing instance)
 
-5. Define the `FileClassificationList` class:
-   - It extends the `BaseModel` class from `pydantic`.
-   - It has one attribute:
-     - `files` of type `list` containing instances of `FileClassification` class.
-   - The `files` attribute is described as a list of file classifications.
-   - It has a method `to_json` that converts a `FileClassificationList` object to a JSON-formatted string.
-   - The method returns a string.
+Note: The code includes private variables (_instance and _initialized) and dunder methods (`__new__` and `__init__`) that are responsible for the Singleton behavior and initialization of the class.
 
-6. Define the `ModuleSummary` class:
-   - It extends the `BaseModel` class from `pydantic`.
-   - It has three attributes:
-     - `path` of type `Path` from `pathlib` module.
-     - `modified` of type `datetime` from `datetime` module.
-     - `content` of type `str`.
+---
 
+Imported functions and their usages:
+
+1. `validate_temperature(temperature: float) -> float`:
+   - Description: Validates the temperature value and returns it if it is within the valid range.
+   - Usage: `valid_temperature = validate_temperature(temperature)`
+
+2. `validate_api_key(api_key: str) -> str`:
+   - Description: Validates the API key and returns it if it is valid.
+   - Usage: `valid_api_key = validate_api_key(api_key)`
+
+Imported modules:
+
+1. `load_dotenv()` (from `dotenv` module):
+   - Description: Loads environment variables from the .env file into the current session.
+   - Usage: `load_dotenv()`
+
+2. `getenv(key="OPENAI_API_KEY")` (from `os` module):
+   - Description: Retrieves the value of the specified environment variable.
+   - Usage: `api_key = getenv(key="OPENAI_API_KEY")`
+
+Note: The usages for the imported modules' functions are inferred based on their traditional usage.
+
+# dir_diary\datastructures.py
+2023-09-16 13:16:39
+To use the provided code, follow these instructions:
+
+1. Import the necessary modules:
+   - `from typing import Optional, Literal` (import data types for function arguments and class methods)
+   - `from pathlib import Path` (import the `Path` class for working with file paths)
+   - `from datetime import datetime` (import the `datetime` class for working with timestamps)
+   - `from pydantic import BaseModel, Field` (import the `BaseModel` class and `Field` decorator for defining data structures)
+
+2. Define the allowed summary types, roles, models, and fallbacks:
+   - `ALLOWED_SUMMARY_TYPES`: A set containing the allowed summary types. Valid values are "pseudocode", "usage", and "tech stack".
+   - `ALLOWED_ROLES`: A set containing the allowed roles. Valid values are "source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", and "specialized".
+   - `ALLOWED_MODELS`: A set containing the allowed models. Valid values are specific versions of the GPT model.
+   - `ALLOWED_FALLBACKS`: A set containing the allowed fallback models.
+
+3. Define the data structure for project file metadata:
+   - Create a class `ProjectFile` that inherits from `BaseModel`.
+   - Add the following attributes to the class:
+     - `path`: A `Path` object representing the file path.
+     - `modified`: A `datetime` object representing the last modified timestamp of the file.
+     - `role`: An optional attribute that specifies the role of the file in the project. Valid values are the allowed roles defined in `ALLOWED_ROLES`.
+
+4. Define the data structure for file classification:
+   - Create a class `FileClassification` that inherits from `BaseModel`.
+   - Add the following attributes to the class:
+     - `path`: A `Path` object representing the file path relative to the project root.
+     - `role`: An optional attribute that specifies the role of the file. Valid values are the allowed roles defined in `ALLOWED_ROLES`.
+
+5. Define the data structure for a list of file classifications:
+   - Create a class `FileClassificationList` that inherits from `BaseModel`.
+   - Add the following attribute to the class:
+     - `files`: A list of `FileClassification` objects representing file classifications.
+   - Implement the `to_json` method that converts the `FileClassificationList` object to a JSON-formatted string. This method uses the `json.dumps` function to serialize the object.
+
+6. Define the data structure for module summary:
+   - Create a class `ModuleSummary` that inherits from `BaseModel`.
+   - Add the following attributes to the class:
+     - `path`: A `Path` object representing the file path of the module.
+     - `modified`: A `datetime` object representing the last modified timestamp of the module.
+     - `content`: A string representing the generated module summary.
+
+Note: Ensure that you have the necessary dependencies installed, such as Pydantic.
+
+Usage:
+
+```python
+from typing import Optional, Literal
+from pathlib import Path
+from datetime import datetime
+from pydantic import BaseModel, Field
+import json
+
+**Define allowed summary types, roles, and models as sets**
+ALLOWED_SUMMARY_TYPES = {"pseudocode", "usage", "tech stack"}
+ALLOWED_ROLES = {"source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", "specialized"}
+ALLOWED_MODELS = {"gpt-3.5-turbo", "gpt-3.5-turbo-0301", "gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613", "gpt-4", "gpt-4-0314", "gpt-4-0613"}
+ALLOWED_FALLBACKS = {'gpt-4', 'gpt-4-0314', 'gpt-4-0613', 'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613'}
+
+**Data structure for project file metadata**
+class ProjectFile(BaseModel):
+    path: Path
+    modified: datetime
+    role: Optional[Literal["source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", "specialized"]] = Field(
+            default=None, description="role the file plays in the project"
+        )
+
+**Data structure for file classification**
+class FileClassification(BaseModel):
+    path: Path = Field(description="file path relative to the project root")
+    role: Optional[Literal["source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", "specialized"]] = Field(
+            default=None, description="role the file plays in the project"
+        )
+
+**Data structure for a list of file classifications**
+class FileClassificationList(BaseModel):
+    files: list[FileClassification] = Field(
+            description="List of file classifications"
+        )
+
+    # Method to convert a FileClassificationList to a JSON-formatted string
+    def to_json(self) -> str:
+        data_dict = self.model_dump(exclude_unset=True)
+
+        # Convert Path objects to str
+        for file in data_dict.get("files", []):
+            file["path"] = str(object=file["path"])
+
+        return json.dumps(obj=data_dict)
+
+**Data structure to hold the generated module summary**
+class ModuleSummary(BaseModel):
+    path: Path
+    modified: datetime
+    content: str
+```
+
+Use the above code as a template to define your own data structures, and modify the attributes and methods as per your requirements.
 
 # dir_diary\file_handler.py
-2023-09-13 16:48:55
-To use the code in the `file_handler.py` module, follow the instructions below:
+2023-09-14 15:48:05
+To use the code in `file_handler.py`, you need to follow these instructions:
 
-1. Import the necessary modules and classes:
+1. Import the required classes and functions from other modules:
    - Import the `ModuleSummary` and `ProjectFile` classes from the `datastructures` module.
    - Import the `Path` class from the `pathlib` module.
    - Import the `datetime` class from the `datetime` module.
+   - Import the `warn` function from the `warnings` module.
 
-2. To create a list of `ModuleSummary` objects from a summary file or create the file if it does not exist, use the `read_summary_file` function:
-   - Pass the path of the summary file as an argument to the `read_summary_file` function.
-   - The `summary_file` argument should be of type `Path`.
-   - The function returns a list of `ModuleSummary` objects.
-   - If the summary file does not exist, the function creates the file and returns an empty list.
+Example:
+```python
+from .datastructures import ModuleSummary, ProjectFile
+from pathlib import Path
+from datetime import datetime
+from warnings import warn
+```
 
-3. To create a summary markdown file from a list of `ModuleSummary` objects, use the `write_summary_file` function:
-   - Pass the list of `ModuleSummary` objects and the path of the summary file as arguments to the `write_summary_file` function.
-   - The `summaries` argument should be of type `list[ModuleSummary]`.
-   - The `summary_file` argument should be of type `Path`.
-   - The function does not return anything.
+2. Create instances or invoke methods of defined objects:
+   - To create a list of `ModuleSummary` objects from a summary file, use the `read_summary_file` function. Pass a `Path` object representing the path to the summary file as an argument. The function will return a list of `ModuleSummary` objects parsed from the file or an empty list if the file does not exist.
 
-4. To identify new and modified files from a list of `ModuleSummary` objects and a list of `ProjectFile` objects, use the `identify_new_and_modified_files` function:
-   - Pass the list of `ModuleSummary` objects and the list of `ProjectFile` objects as arguments to the `identify_new_and_modified_files` function.
-   - The `summaries` argument should be of type `list[ModuleSummary]`.
-   - The `project_files` argument should be of type `list[ProjectFile]`.
-   - The function returns a tuple containing two lists: `new_files` and `modified_files`.
-   - The `new_files` list contains `ProjectFile` objects that are missing from the `summaries` list.
-   - The `modified_files` list contains `ProjectFile` objects with modified timestamps later than the corresponding files in the `summaries` list.
+   Example:
+   ```python
+   summary_file = Path("path/to/summary_file.txt")
+   summaries = read_summary_file(summary_file)
+   ```
 
-5. To remove deleted files from a list of `ModuleSummary` objects based on a list of `ProjectFile` objects, use the `remove_deleted_files_from_summaries` function:
-   - Pass the list of `ModuleSummary` objects and the list of `ProjectFile` objects as arguments to the `remove_deleted_files_from_summaries` function.
-   - The `summaries` argument should be of type `list[ModuleSummary]`.
-   - The `files` argument should be of type `list[ProjectFile]`.
-   - The function returns a filtered list of `ModuleSummary` objects that only includes files present in the `files` list.
+   - To create a summary markdown file from a list of `ModuleSummary` objects, use the `write_summary_file` function. Pass the list of `ModuleSummary` objects and a `Path` object representing the path to the summary file as arguments. The function will create a summary markdown file with the path, modified timestamp, and content of each `ModuleSummary` object.
+
+   Example:
+   ```python
+   summary_file = Path("path/to/summary_file.txt")
+   write_summary_file(summaries, summary_file)
+   ```
+
+   - To filter a list of `ProjectFile` objects to identify new and modified files, use the `identify_new_and_modified_files` function. Pass a list of `ModuleSummary` objects and a list of `ProjectFile` objects as arguments. The function will return a tuple containing the `new_files` that are missing from the `summary_file` and the `modified_files` with modified timestamps later than the timestamps in the summaries.
+
+   Example:
+   ```python
+   new_files, modified_files = identify_new_and_modified_files(summaries, project_files)
+   ```
+
+   - To filter a list of `ModuleSummary` objects to remove files missing from a list of `ProjectFile` objects, use the `remove_deleted_files_from_summaries` function. Pass a list of `ModuleSummary` objects and a list of `ProjectFile` objects as arguments. The function will return a filtered list of `ModuleSummary` objects that only includes files present in the `files` list.
+
+   Example:
+   ```python
+   filtered_summaries = remove_deleted_files_from_summaries(summaries, project_files)
+   ```
+
+3. Data types:
+   - The `read_summary_file` function expects a `Path` object as the `summary_file` argument and returns a list of `ModuleSummary` objects.
+   - The `write_summary_file` function expects a list of `ModuleSummary` objects and a `Path` object as the `summaries` and `summary_file` arguments, respectively. It does not return anything (`None`).
+   - The `identify_new_and_modified_files` function expects a list of `ModuleSummary` objects and a list of `ProjectFile` objects as the `summaries` and `project_files` arguments. It returns a tuple containing two lists of `ProjectFile` objects: `new_files` and `modified_files`.
+   - The `remove_deleted_files_from_summaries` function expects a list of `ModuleSummary` objects and a list of `ProjectFile` objects as the `summaries` and `files` arguments. It returns a list of `ModuleSummary` objects.
+
+Note: The specific data types and required imports for classes and functions imported from outside this module are not provided.
 
 # dir_diary\mapper.py
 2023-09-12 11:21:54
-To use the provided code, follow these instructions:
+To use this code, follow these instructions:
 
 1. Import the necessary modules:
    - `os`
    - `pathspec`
    - `Path` from `pathlib`
-   - `datetime` from `datetime`
-   - `ProjectFile` from `.file_handler`
+   - `datetime`
+   - `ProjectFile` from `file_handler` (assuming it is imported from a separate module called `file_handler.py`)
 
-2. To create instances of the `ProjectFile` class, use the following syntax:
-   ```python
-   project_file = ProjectFile(path, modified)
-   ```
-   - `path` should be a `Path` object representing the file path.
-   - `modified` should be a `datetime` object representing the modification time of the file.
-
-3. To invoke the `map_project_folder` function, use the following syntax:
-   ```python
-   project_files = map_project_folder(startpath)
-   ```
-   - `startpath` is an optional argument that represents the path to the project folder. If not provided, the current directory will be used.
+2. To create a list of `ProjectFile` objects that represent the files in a project folder, use the `map_project_folder` function.
+   - Optionally, provide the `startpath` argument to specify the path to the project folder. If no argument is provided, the current directory will be used.
    - The function returns a list of `ProjectFile` objects.
 
-4. To invoke the `remove_gitignored_files` function, use the following syntax:
-   ```python
-   filtered_files = remove_gitignored_files(startpath, project_files)
-   ```
-   - `startpath` is an optional argument that represents the path to the project folder. If not provided, the current directory will be used.
-   - `project_files` is a list of `ProjectFile` objects representing the files in the project.
-   - The function returns a filtered list of `ProjectFile` objects.
-
-5. The `map_project_folder` function maps a project folder by walking through the directory tree and creating a list of `ProjectFile` objects. Each `ProjectFile` object contains the relative file path and the modification time of the file.
-
-6. The `remove_gitignored_files` function removes files from the `project_files` list that are ignored by `.gitignore` files. It also removes files with a parent `.git` folder, regardless of whether they are mentioned in `.gitignore` files.
-
-7. The `map_project_folder` function returns a list of `ProjectFile` objects representing the files in the project folder.
-
-8. The `remove_gitignored_files` function returns a filtered list of `ProjectFile` objects after removing ignored files.
-
-9. The code in the `if __name__ == "__main__":` block demonstrates an example usage of the `map_project_folder` function. It prints the file path and modification time for each `ProjectFile` object in the `paths_list` list.
-
-# dir_diary\summarize.py
-2023-09-13 20:42:52
-To use the code, you need to follow these steps:
-
-1. Import the necessary modules and classes:
-   - `initialize_model` from the `chatbot` module
-   - `classify_files` from the `classifier` module
-   - `summarize_file` from the `summarizer` module
-   - `read_summary_file`, `write_summary_file`, `identify_new_and_modified_files`, `remove_deleted_files_from_summaries`, `ModuleSummary`, and `ProjectFile` from the `file_handler` module
-   - `map_project_folder` and `remove_gitignored_files` from the `mapper` module
-   - `ALLOWED_SUMMARY_TYPES`, `ALLOWED_ROLES`, `ALLOWED_MODELS`, and `ALLOWED_FALLBACKS` from the `datastructures` module
-   - `validate_literals`, `validate_paths`, and `validate_temperature` from the `validators` module
-   - `Path` from the `pathlib` module
-   - `PathLike` from the `os` module
-   - `Union`, `Literal`, `tuple`, and `list` from the `typing` module
-   - `ChatOpenAI` from the `langchain.chat_models` module
-   - `OpenAICallbackHandler` from the `langchain.callbacks` module
-
-2. Use the `summarize_project_folder` function to summarize a project folder. The function takes the following arguments:
-   - `startpath` (optional): The path to the project folder. Default is the current directory.
-   - `destination` (optional): The path to the destination folder where the summaries will be saved. Default is a folder named "docs" in the current directory.
-   - `summary_types` (optional): A list of summary types to generate. Default is ["pseudocode"].
-   - `include` (optional): A list of project roles to include in the summaries. Default is ["source", "utility scripts"].
-   - `api_key` (optional): The API key for the OpenAI chatbot. If not provided, the chatbot will run in free mode.
-   - `model_name` (optional): The name of the chatbot model to use. Default is "gpt-3.5-turbo".
-   - `long_context_fallback` (optional): The name of the chatbot model to use as a fallback for long context. Default is "gpt-3.5-turbo-16k".
-   - `temperature` (optional): The temperature parameter for the chatbot. Default is 0.
-
-3. The function validates the literal argument values for `summary_types`, `include`, `model_name`, and `long_context_fallback` using the `validate_literals` function.
-
-4. The function validates the path arguments `startpath` and `destination` using the `validate_paths` function.
-
-5. The function validates the temperature argument using the `validate_temperature` function.
-
-6. The function initializes the OpenAI chatbot using the `initialize_model` function from the `chatbot` module. It assigns the initialized chatbot to the variable `llm`.
-
-7. If `long_context_fallback` is not None, the function initializes a second chatbot using the same process as step 6. It assigns the initialized chatbot to the variable `long_context_llm`.
-
-8. The function maps the project folder using the `map_project_folder` function from the `mapper` module. It assigns the output, a list of `ProjectFile` objects, to the variable `project_files`.
-
-9. The function removes all project files listed in the `.gitignore` file using the `remove_gitignored_files` function from the `mapper` module. It updates the `project_files` variable with the filtered list.
-
-10. The function classifies the project files by project role using the `classify_files` function from the `classifier` module. It assigns the output, a list of `ProjectFile` objects, to the variable `project_files`.
-
-11. The function filters the `project_files` list to keep only the files with roles that are in the `include` list or tuple.
-
-12. For each summary type in both `summary_types` and `["pseudocode", "usage"]`, the function performs the following steps:
-    - Constructs the file path for the summary file based on the `destination` and the summary type.
-    - Reads or creates the summary file using the `read_summary_file` function from the `file_handler` module. It assigns the output, a list of `ModuleSummary` objects, to the variable `summaries`.
-    - Filters the `summaries` list to remove any files that have been deleted using the `remove_deleted_files_from_summaries` function from the `file_handler` module. It assigns the filtered list to the variable `updated_summaries`.
-    - Identifies new and modified files since the last summary using the `identify_new_and_modified_files` function from the `file_handler` module. It assigns the output, two lists of `ProjectFile` objects (new_files and modified_files), to the variables `new_files` and `modified_files`.
-    - Combines the `new_files` and `modified_files` lists into a single list called `files_to_summarize`.
-    - If there are no `files_to_summarize` and `updated_summaries` is identical to `summaries`, the function exits.
-    - For each file in the `files_to_summarize` list, the function queries the chatbot for an updated summary using the `summarize_file` function from the `summarizer` module. It assigns the output, a `ModuleSummary` object, to the variable `generated_summaries`.
-    - Drops any existing summaries for the file from the `updated_summaries` list.
-    - Adds the `generated_summaries` to the `updated_summaries` list.
-    - Writes the updated summaries to the summary file using the `write_summary_file` function from the `file_handler` module.
-
-13. The function prints the total cost of the workflow run, which is tracked by the `cost_tracker` object.
-
-14. The function returns None.
-
-Note: The data types of the function arguments and return values are specified in the function signature.
-
-# dir_diary\summarizer.py
-2023-09-13 17:46:38
-To use the code, follow these steps:
-
-1. Import the necessary modules and classes:
-   - `Literal` from the `typing` module
-   - `ModuleSummary` and `ProjectFile` from the `.file_handler` module
-   - `query_llm` from the `.chatbot` module
-   - `PromptTemplate` from the `langchain` module
-   - `ChatOpenAI` from the `langchain.chat_models` module
-
-2. Define a prompt template for generating a pseudocode summary of a code module:
-   ```python
-   pseudocode_prompt: PromptTemplate = PromptTemplate(
-       template="Generate an abbreviated natural-language pseudocode summary of the following code. Make sure to include function, class, and argument names and to indicate where objects are imported from so a reader can understand the execution context and usage. Well-formatted pseudocode will separate object and function blocks with a blank line and will use hierarchical ordered and unordered lists to show execution sequence and logical relationships.\nHere is the code to summarize:\n{input_str}",
-       input_variables=["input_str"]
-   )
-   ```
-
-3. Define a prompt template for generating a usage summary of a code module:
-   ```python
-   usage_prompt: PromptTemplate = PromptTemplate(
-       template="Generate natural-language instructions on how to use the following code. Describe what the code is doing, how to create instances or invoke methods of defined objects, and how to invoke functions. As much as possible, infer what data types are expected by function arguments and class methods, as well as what data types are returned. When usage cannot be inferred for types and classes imported from outside this module, flag the uncertainties and indicate where they are imported from. Well-formatted usage summaries will separate instructions for different objects and functions with a blank line.\nHere is the code to summarize:\n{input_str}",
-       input_variables=["input_str"]
-   )
-   ```
-
-4. Define a function `summarize_file` that takes the following arguments:
-   - `file_to_summarize`: A `ProjectFile` object representing the file to be summarized.
-   - `summary_type`: A string literal indicating the type of summary to generate ("pseudocode" or "usage").
-   - `llm`: A `ChatOpenAI` object representing the chatbot model to query.
-   - `long_context_llm`: A string representing the long context for the chatbot model.
-
-5. Inside the `summarize_file` function, open the file specified by `file_to_summarize.path` in read mode and read its contents into the `input_str` variable.
-
-6. Determine the prompt to use based on the value of `summary_type`. If `summary_type` is "pseudocode", assign the `pseudocode_prompt` template to the `prompt` variable. If `summary_type` is "usage", assign the `usage_prompt` template to the `prompt` variable.
-
-7. Query the chatbot by calling the `query_llm` function with the following arguments:
-   - `prompt`: The `prompt` template.
-   - `input_str`: The contents of the file to be summarized.
-   - `llm`: The chatbot model to query.
-   - `long_context_llm`: The long context for the chatbot model.
-   - `parser`: None (uncertain about the data type).
-
-8. Parse the output of the chatbot and assign it to the `generated_summary` variable.
-
-9. Create a `ModuleSummary` object by calling the constructor with the following arguments:
-   - `path`: The path of the file being summarized (`file_to_summarize.path`).
-   - `modified`: The modification status of the file being summarized (`file_to_summarize.modified`).
-   - `content`: The generated summary (`generated_summary`).
-
-10. Return the `module_summary` object as the output of the `summarize_file` function.
-
-To use the `summarize_file` function, pass the appropriate arguments and store the returned `ModuleSummary` object for further use.
-
-# dir_diary\validators.py
-2023-09-13 16:41:57
-To use the code provided, follow the instructions below:
-
-1. Import the necessary modules:
-   - `typing` module for type hints and annotations.
-   - `os` module for accessing the file system.
-   - `pathlib` module for working with file paths.
-
-2. Define the following functions:
-   - `validate_literal(value, allowed_set, var_name) -> None`: This function validates if a given value is in an allowed set of values. It raises a `ValueError` if the value is not in the allowed set.
-   - `validate_literals(arguments) -> None`: This function validates multiple arguments by calling the `validate_literal` function for each argument. It accepts a list of dictionaries, where each dictionary contains the `var_name`, `allowed_set`, and `value` for an argument.
-   - `validate_paths(startpath: str, destination: str) -> tuple[Path, Path]`: This function validates two path arguments, `startpath` and `destination`. It checks if the arguments are of type `str` or `PathLike` and converts them to `Path` objects. It also checks if the startpath has read permission and if the destination path has write permission. It returns a tuple of `Path` objects representing the startpath and destination.
-   - `validate_temperature(temperature: Union[int, float, str]) -> Union[int, float]`: This function validates a temperature argument. It tries to convert the argument to an `int` first, and if that fails, it tries to convert it to a `float`. It checks if the temperature is within the range of 0 to 1. It returns the temperature as an `int` or `float`.
-
-3. To create instances or invoke methods of defined objects:
-   - No objects are defined in this code. Only functions are defined.
-
-4. To invoke functions:
-   - Call the `validate_literals` function and pass a list of dictionaries as the `arguments` parameter. Each dictionary should contain the keys `var_name`, `allowed_set`, and `value` to validate multiple arguments.
-   - Call the `validate_paths` function and pass the `startpath` and `destination` as arguments. Both arguments should be of type `str` or `PathLike`.
-   - Call the `validate_temperature` function and pass the `temperature` argument. The `temperature` argument can be an `int`, `float`, or `str` that can be converted to an `int` or `float`.
-
 Example usage:
-
 ```python
-# Example usage of validate_literals function
-arguments = [
-    {'var_name': 'color', 'allowed_set': ['red', 'green', 'blue'], 'value': 'red'},
-    {'var_name': 'size', 'allowed_set': [1, 2, 3], 'value': [1, 2, 3]},
-]
-validate_literals(arguments)
-
-# Example usage of validate_paths function
-startpath = '/path/to/start'
-destination = '/path/to/destination'
-startpath, destination = validate_paths(startpath, destination)
-
-# Example usage of validate_temperature function
-temperature = '0.5'
-temperature = validate_temperature(temperature)
+project_files = map_project_folder(startpath="path/to/project/folder")
 ```
 
-Note: The data types expected by function arguments and class methods are inferred based on the code provided.
+3. To remove files that are ignored by the .gitignore files in a project, use the `remove_gitignored_files` function.
+   - Optionally, provide the `startpath` argument to specify the path to the project folder. If no argument is provided, the current directory will be used.
+   - The function also expects a list of `ProjectFile` objects called `project_files` as an argument. This list represents all the files in the project.
+   - The function returns a filtered list of `ProjectFile` objects that do not match any patterns in the .gitignore files.
+
+Example usage:
+```python
+filtered_files = remove_gitignored_files(startpath="path/to/project/folder", project_files=project_files)
+```
+
+4. To access the `path` and `modified` attributes of a `ProjectFile` object, use the dot notation.
+   - `ProjectFile.path` returns the path of the file as a `Path` object.
+   - `ProjectFile.modified` returns the modified timestamp of the file as a formatted string ("%Y-%m-%d %H:%M:%S").
+
+Example usage:
+```python
+for file in project_files:
+    print(file.path, file.modified)
+```
+
+Note: Uncertainties regarding the expected data types and imports are flagged in the code as comments. Additional information, such as the content of the `file_handler` module, would be required to provide more specific instructions.
+
+# dir_diary\openai_chatbot.py
+2023-09-16 16:01:03
+To use the code, follow these instructions:
+
+1. Import the following modules:
+   - `FileClassificationList` from the `datastructures` module.
+   - `LLMClient` from the `client` module.
+   - `Optional` and `Literal` from the `typing` module.
+   - `openai` (uncertainty about where it is imported from).
+   - `models` from the `llm_cost_estimation` module.
+
+2. Define a list of functions with the following structure:
+   - Each function dictionary should have the following keys:
+     - "name": Name of the function.
+     - "description": Description of the function.
+     - "parameters": Use the `FileClassificationList.model_json_schema()` method to get the expected data structure for the parameters.
+
+3. Define a string variable `file_classification_prompt` that represents a template for mapping the file structure of a project folder.
+
+4. Define a function named `classify_with_openai` that takes a `project_map` as input, which is an instance of `FileClassificationList`. The function returns an instance of `FileClassificationList`.
+
+5. Inside the `classify_with_openai` function:
+   - Convert the `project_map` to an input string by iterating over the `files` attribute of `project_map` and extracting the `path` of each file.
+   - Query the LLM (uncertainty about what this is) by calling the `query_llm` function with the `file_classification_prompt` and the `functions` list.
+   - Retrieve the project map from the response.
+   - Create a new instance of `FileClassificationList` by validating the JSON project map obtained from the response.
+   - Return the parsed project map.
+
+6. Define a string variable `pseudocode_prompt` that represents a template for generating a pseudocode summary of a code module.
+
+7. Define a string variable `usage_prompt` that represents a template for generating a usage summary of a code module.
+
+8. Define a function named `summarize_with_openai` that takes an `input_str` as a string and a `summary_type` as a string literal with possible values of "pseudocode" or "usage". The function returns a string.
+
+9. Inside the `summarize_with_openai` function:
+   - Determine the appropriate prompt based on the `summary_type`.
+   - Query the chatbot by calling the `query_llm` function with the determined prompt and the `input_str`.
+   - Retrieve the generated summary from the response.
+   - Return the generated summary.
+
+10. Define a function named `get_max_tokens` that takes an optional boolean argument `long`. The function returns an integer.
+
+11. Inside the `get_max_tokens` function:
+    - Initialize an instance of `LLMClient`.
+    - Set the `model_name` variable based on the `client.model_name` or `client.long_context_fallback` values, depending on the `long` argument.
+    - Set the `max_tokens` variable based on the `model_name`. The value will be 16000 if "32k" is in the model_name, 8000 if "16k" is in the model_name, 4000 if "gpt-4" is in the model_name, and 2000 otherwise.
+    - Return the `max_tokens`.
+
+12. Define a function named `query_llm` that takes a `prompt` as a string and an optional `functions` list as a parameter. The function returns a string.
+
+13. Inside the `query_llm` function:
+    - Initialize an instance of `LLMClient`.
+    - Set the `openai.api_key` to the `client.api_key` value.
+    - Prepare the common arguments for the API request, including the model name, messages (with the user role and content), and the `max_tokens` value obtained from the `get_max_tokens` function.
+    - If `functions` is provided, add it to the request arguments along with the first function name.
+    - Generate the output by calling the `openai.ChatCompletion.create` function with the prepared request arguments.
+    - Update the total cost by calling the `calculate_cost` function.
+    - Return the response object.
+
+14. Define a function named `calculate_cost` that takes a `response` dictionary as input and returns a float.
+
+15. Inside the `calculate_cost` function:
+    - Extract the `prompt_tokens`, `completion_tokens`, and `model_used` from the `response` dictionary.
+    - Get the cost per token for the used model from the `models` object (uncertainty about the origin of this object).
+    - Parse the cost per token strings by splitting them using the " / " separator and converting the numerator and denominator to floats.
+    - Calculate and return the total cost of the query by multiplying the prompt tokens with the prompt cost per token and the completion tokens with the completion cost per token.
+
+16. Define a function named `parse_and_calculate` that takes a `cost_str` as a string and returns a float.
+
+17. Inside the `parse_and_calculate` function:
+    - Split the `cost_str` using the " / " separator to obtain the numerator and denominator strings.
+    - Convert the numerator and denominator strings to floats.
+    - Calculate and return the division result.
+
+Note: The usage of the imported functions and classes from outside this module is uncertain and should be flagged at the respective places in the instructions.
+
+# dir_diary\summarize.py
+2023-09-16 16:30:48
+To use this code, you will need to import the following modules:
+- `LLMClient` from the `client` module
+- `classify_files` from the `classifier` module
+- `summarize_file` from the `summarizer` module
+- `read_summary_file`, `write_summary_file`, `identify_new_and_modified_files`, `remove_deleted_files_from_summaries`, `ModuleSummary`, and `ProjectFile` from the `file_handler` module
+- `map_project_folder` and `remove_gitignored_files` from the `mapper` module
+- `ALLOWED_SUMMARY_TYPES`, `ALLOWED_ROLES`, `ALLOWED_MODELS`, and `ALLOWED_FALLBACKS` from the `datastructures` module
+- `validate_literals` and `validate_paths` from the `validators` module
+- `Path` from the `pathlib` module
+- `PathLike` from the `os` module
+- `Union` and `Literal` from the `typing` module
+
+To create an instance of the `LLMClient` class, use the following code:
+```
+client = LLMClient(api_key=api_key, model_name=model_name, long_context_fallback=long_context_fallback, temperature=temperature, total_cost=0)
+```
+- `api_key` (str): The API key for the chatbot.
+- `model_name` (Literal[str]): The name of the chatbot model to use. Must be one of the allowed models: "gpt-3.5-turbo", "gpt-3.5-turbo-0301", "gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-16k-0613", "gpt-4", "gpt-4-0314", "gpt-4-0613".
+- `long_context_fallback` (Literal[str]): The fallback model to use for long conversations. Must be one of the allowed fallbacks: 'gpt-4', 'gpt-4-0314', 'gpt-4-0613', 'gpt-3.5-turbo-16k', 'gpt-3.5-turbo-16k-0613'.
+- `temperature` (float): The temperature value for generating responses.
+
+To invoke the `map_project_folder` function, use the following code:
+```
+project_files = map_project_folder(startpath=startpath)
+```
+- `startpath` (Union[str, PathLike]): The path to the project folder to be summarized.
+
+To invoke the `remove_gitignored_files` function, use the following code:
+```
+project_files = remove_gitignored_files(startpath=startpath, project_files=project_files)
+```
+- `startpath` (Union[str, PathLike]): The path to the project folder.
+- `project_files` (list[ProjectFile]): The list of `ProjectFile` objects representing the files in the project folder.
+
+To invoke the `classify_files` function, use the following code:
+```
+project_files = classify_files(project_map_file=project_map_file, project_files=project_files)
+```
+- `project_map_file` (Path): The path to the project map file.
+- `project_files` (list[ProjectFile]): The list of `ProjectFile` objects representing the files in the project folder.
+
+To invoke the `remove_deleted_files_from_summaries` function, use the following code:
+```
+updated_summaries = remove_deleted_files_from_summaries(summaries=summaries, files=project_files)
+```
+- `summaries` (list[ModuleSummary]): The list of `ModuleSummary` objects representing the existing summaries.
+- `files` (list[ProjectFile]): The list of `ProjectFile` objects representing the files in the project folder.
+
+To invoke the `identify_new_and_modified_files` function, use the following code:
+```
+new_files, modified_files = identify_new_and_modified_files(summaries=summaries, project_files=project_files)
+```
+- `summaries` (list[ModuleSummary]): The list of `ModuleSummary` objects representing the existing summaries.
+- `project_files` (list[ProjectFile]): The list of `ProjectFile` objects representing the files in the project folder.
+
+To invoke the `summarize_file` function, use the following code:
+```
+generated_summaries = summarize_file(file_to_summarize=file, summary_type=type)
+```
+- `file_to_summarize` (ProjectFile): The `ProjectFile` object representing the file to be summarized.
+- `summary_type` (str): The type of summary to generate.
+
+To invoke the `read_summary_file` function, use the following code:
+```
+summaries = read_summary_file(summary_file=file_path)
+```
+- `summary_file` (Path): The path to the summary file.
+
+To invoke the `write_summary_file` function, use the following code:
+```
+write_summary_file(summaries=updated_summaries, summary_file=file_path)
+```
+- `summaries` (list[ModuleSummary]): The list of `ModuleSummary` objects representing the updated summaries.
+- `summary_file` (Path): The path to the summary file.
+
+To invoke the `validate_literals` function, use the following code:
+```
+validate_literals(arguments=[{'var_name': 'summary_types', 'allowed_set': ALLOWED_SUMMARY_TYPES, 'value': summary_types}, {'var_name': 'include', 'allowed_set': ALLOWED_ROLES, 'value': include}, {'var_name': 'model_name', 'allowed_set': ALLOWED_MODELS, 'value': model_name}, {'var_name': 'long_context_fallback', 'allowed_set': ALLOWED_FALLBACKS, 'value': long_context_fallback}])
+```
+- `arguments` (list[dict]): The list of dictionaries containing variable name, allowed set, and value.
+
+To invoke the `validate_paths` function, use the following code:
+```
+startpath, destination = validate_paths(startpath=startpath, destination=destination)
+```
+- `startpath` (Union[str, PathLike]): The path to the project folder.
+- `destination` (Union[str, PathLike]): The path to the destination folder.
+
+To use the `summarize_project_folder` function, call it with the desired arguments:
+```
+summarize_project_folder(startpath='path/to/project_folder/', destination='path/to/destination_folder/', summary_types=['pseudocode'], include=['source'], api_key='your_api_key', model_name='gpt-3.5-turbo', long_context_fallback='gpt-3.5-turbo-16k', temperature=0)
+```
+- `startpath` (Union[str, PathLike], optional): The path to the project folder to be summarized. Default is the current directory.
+- `destination` (Union[str, PathLike], optional): The path to the destination folder where the summary files will be created. Default is a folder named "docs" in the current directory.
+- `summary_types` (Union[tuple, list[Literal["pseudocode", "usage", "tech stack"]]], optional): The types of summaries to generate. Default is ["pseudocode"].
+- `include` (Union[tuple, list[Literal["source", "configuration", "build or deployment", "documentation", "testing", "database", "utility scripts", "assets or data", "specialized"]]], optional): The roles of files to include in the summaries. Default is ["source", "utility scripts"].
+- `api_key` (str, optional): The API key for the chatbot. Default is None.
+- `model_name` (Literal[str], optional): The name of the chatbot model to use. Must be one of the allowed models. Default is "gpt-3.5-turbo".
+- `long_context_fallback` (Literal[str], optional): The fallback model to use for long conversations. Must be one of the allowed fallbacks. Default is "gpt-3.5-turbo-16k".
+- `temperature` (float, optional): The temperature value for generating responses. Default is 0.
+
+# dir_diary\summarizer.py
+2023-09-16 16:18:39
+To use the provided code, follow these instructions:
+
+1. Import the following modules and classes:
+   - `Literal` from the `typing` module.
+   - `ModuleSummary`, `ProjectFile` from the `file_handler` module.
+   - `summarize_with_openai` from the `openai_chatbot` module. Note: the location of these modules is not specified in the code, so make sure they are accessible in the same directory or specify the correct import path.
+
+2. To generate a pseudocode or usage summary of a module file, use the `summarize_file` function. It takes two arguments:
+   - `file_to_summarize`: A `ProjectFile` object representing the file you want to summarize. Create an instance of `ProjectFile` and pass it as this argument. The `ProjectFile` class might come from the `file_handler` module.
+   - `summary_type`: A string literal specifying the type of summary you want. It can be either "pseudocode" or "usage".
+
+3. The `summarize_file` function returns a `ModuleSummary` object, which represents the generated summary. You can access the summary by accessing the `content` attribute of the returned `ModuleSummary` object.
+
+4. If any line in the generated summary starts with a hashtag (#), it is important to remove it and wrap the line with double asterisks (**). This is because hashtags might break file parsing. The code already handles this internally.
+
+5. To replace hashtags in a text, use the `replace_hashtags` function. Pass the text as a string to this function. It returns the cleaned text with hashtags replaced.
+
+Here is an example usage of the code:
+
+```python
+from typing import Literal
+from .file_handler import ModuleSummary, ProjectFile
+from .openai_chatbot import summarize_with_openai
+
+**Create a ProjectFile instance representing the module file to summarize**
+file_to_summarize = ProjectFile(path="path/to/module_file.py", modified=True)
+
+**Specify the type of summary you want**
+summary_type = "pseudocode"
+
+**Generate the summary using the summarize_file function**
+module_summary = summarize_file(file_to_summarize, summary_type)
+
+**Access the generated summary**
+generated_summary = module_summary.content
+
+**Print the generated summary**
+print(generated_summary)
+```
+
+# dir_diary\validators.py
+2023-09-15 14:04:24
+Instructions for using the code:
+
+1. Creating an instance of the `disable_exception_traceback` context manager:
+   - To create an instance of the `disable_exception_traceback` context manager, use the `with` statement.
+   - Wrap the code that you want to disable the traceback for inside the `with` block.
+   - After the `with` block, the traceback information will be suppressed.
+   Example:
+   ```
+   with disable_exception_traceback():
+       # Code with disabled traceback
+   ```
+
+2. Invoking the `validate_literal` function:
+   - Call the `validate_literal` function and provide the following arguments:
+     - `value`: The value to be validated.
+     - `allowed_set`: A set of allowed values that `value` can be.
+     - `var_name`: The name of the variable being validated.
+   - The function will raise a `ValueError` if `value` is not in the `allowed_set`.
+   Example:
+   ```
+   validate_literal(value=5, allowed_set={1, 2, 3}, var_name="my_var")
+   ```
+
+3. Invoking the `validate_literals` function:
+   - Call the `validate_literals` function and provide a list of dictionaries as the `arguments` argument.
+     - Each dictionary represents an argument to be validated and should contain the keys `'var_name'`, `'allowed_set'`, and `'value'`.
+     - `'var_name'` should be a string representing the name of the variable being validated.
+     - `'allowed_set'` should be a set of allowed values that the argument can take.
+     - `'value'` should be the value to be validated.
+   - The function will iterate over the `arguments` list and call `validate_literal` for each argument.
+   - If an argument's `'value'` is a list or tuple, the function will call `validate_literal` for each value in the list or tuple.
+   Example:
+   ```
+   validate_literals(arguments=[
+       {'var_name': 'var1', 'allowed_set': {1, 2, 3}, 'value': 2},
+       {'var_name': 'var2', 'allowed_set': {'a', 'b', 'c'}, 'value': ['a', 'd', 'c']}
+   ])
+   ```
+
+4. Invoking the `validate_paths` function:
+   - Call the `validate_paths` function and provide the following arguments:
+     - `startpath`: The string or `Path` object representing the starting path.
+     - `destination`: The string or `Path` object representing the destination path.
+   - The function will perform the following validations:
+     - Check if both `startpath` and `destination` are instances of either a string or `PathLike` object.
+     - Convert `startpath` to a `Path` object for easier manipulation.
+     - Check if the current user has read permission for the `startpath`.
+     - Check if the current user has write permission for the `destination`.
+   - If any of the validations fail, the function will raise a `TypeError` or `PermissionError`.
+   - If all validations pass, the function will return a tuple containing the `startpath` and `destination` as `Path` objects.
+   Example:
+   ```
+   start, dest = validate_paths(startpath="/path/to/start", destination="path/to/destination")
+   ```
+
+5. Invoking the `validate_temperature` function:
+   - Call the `validate_temperature` function and provide the `temperature` argument.
+   - The `temperature` argument can be of type `int`, `float`, or `str`.
+   - The function will try to convert the `temperature` argument to a `float` first.
+   - If the conversion fails, a `ValueError` will be raised.
+   - If the conversion is successful, the function will check if the `float_temperature` is an `int`.
+   - If `float_temperature` is an `int`, it will be returned as an `int`.
+   - Otherwise, the function will check if `float_temperature` is within the range of 0 and 1.
+   - If it is within the range, `float_temperature` will be returned as a `float`.
+   - If it is not within the range, a `ValueError` will be raised.
+   Example:
+   ```
+   validated_temperature = validate_temperature(0.5)
+   ```
+
+6. Invoking the `validate_api_key` function:
+   - Call the `validate_api_key` function and provide the `api_key` argument as a string.
+   - The function will validate the `api_key` by calling `openai.Model.list(api_key=api_key)`.
+   - If the authentication is successful, "Authentication was successful" will be printed.
+   - If the authentication fails, an `openai.OpenAIError` will be raised.
+   - To suppress the traceback, the function uses the `disable_exception_traceback` context manager.
+   - If an error occurs during the authentication, the function will raise the error with the traceback disabled.
+   - If the authentication is successful, the `api_key` will be returned as a string.
+   Example:
+   ```
+   validated_api_key = validate_api_key("my_api_key")
+   ```
 
 # dir_diary\__init__.py
 2023-09-13 16:53:55
-To use the code provided, follow these instructions:
+To use the code provided, please follow the instructions below:
 
-1. Import the necessary modules and classes:
-   - Import the `summarize_project_folder` function from the `summarize` module.
-   - Import the `read_summary_file` function and the `ModuleSummary` class from the `file_handler` module.
+1. Import the necessary modules and classes by adding the following line at the top of your script:
+   ```
+   from __init__ import summarize_project_folder, read_summary_file, ModuleSummary
+   ```
 
-2. To summarize a project folder, use the `summarize_project_folder` function:
-   - Call the `summarize_project_folder` function and pass the path of the project folder as a string argument.
-   - The function will return a summary of the project folder, which will be a dictionary.
+2. To summarize a project folder, use the `summarize_project_folder` function. This function takes a single argument, which is the path to the project folder. The summary will be printed to the console. Here is an example usage:
+   ```
+   summarize_project_folder('/path/to/project/folder')
+   ```
 
-3. To read a summary file, use the `read_summary_file` function:
-   - Call the `read_summary_file` function and pass the path of the summary file as a string argument.
-   - The function will return the contents of the summary file, which will be a string.
+3. To read a summary file, use the `read_summary_file` function. This function takes a single argument, which is the path to the summary file. It returns the contents of the file as a string. Here is an example usage:
+   ```
+   summary = read_summary_file('/path/to/summary/file')
+   ```
 
-4. To create an instance of the `ModuleSummary` class:
-   - Instantiate the `ModuleSummary` class by calling it with the desired arguments.
-   - The arguments required to create an instance of `ModuleSummary` are:
-     - `name` (string): The name of the module.
-     - `path` (string): The path of the module file.
-     - `summary` (string): The summary of the module.
+4. The `ModuleSummary` class can be used to create instances representing summary files for individual modules within a project. To create an instance, use the class constructor and provide the path to the module's summary file as an argument. Here is an example usage:
+   ```
+   module_summary = ModuleSummary('/path/to/module/summary/file')
+   ```
 
-Note: The data types and usage of imported modules and classes from outside this module are not specified in the provided code. Please refer to the documentation or source code of those modules for further information.
+   Once you have an instance of `ModuleSummary`, you can access its attributes and invoke its methods. The available attributes and methods are not specified in the provided code, so it's uncertain what data types are expected or returned. Please refer to the documentation or code implementation of the `ModuleSummary` class to determine its usage.
 

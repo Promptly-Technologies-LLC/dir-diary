@@ -1,6 +1,6 @@
 from typing import Literal
 from .file_handler import ModuleSummary, ProjectFile
-from .langchain_chatbot import summarize_with_langchain
+from .openai_chatbot import summarize_with_openai
 
 
 # Query a chatbot to generate a pseudocode summary of a module file
@@ -13,7 +13,7 @@ def summarize_file(
         input_str: str = f.read()
 
     # Query the chatbot for a summary and parse the output
-    generated_summary: str = summarize_with_langchain(
+    generated_summary: str = summarize_with_openai(
                 input_str=input_str,
                 summary_type=summary_type
             )

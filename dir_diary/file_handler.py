@@ -54,7 +54,7 @@ def read_summary_file(summary_file: Path) -> list[ModuleSummary]:
     
     except Exception as e:
         # Log a warning if an exception occurs
-        warn(message=f"An error occurred while parsing the summary file: {e}\nStarting fresh with a blank file.")
+        warn(message=f"An error occurred while parsing the summary file: {e} Starting fresh with a blank file.")
 
         # Delete the file if it exists
         if summary_file.exists():

@@ -216,10 +216,15 @@ For a more detailed understanding, please refer to the source code, inline comme
 
 ## To-do
 
-- [ ] Fix the way we handle exceeding context length (use `llm_cost_estimation.models` to get context limits?)
+- [x] Remove langchain because of breaking authentication bug? (Increased latency but reduced reported cost, although this may be because langchain miscalculates cost)
+- [ ] Add console logging of prompts and completions
+- [ ] Deal with condition where LLM response['choices']['finish_reason'] == 'length' (success code but response exceeds context length)
+- [ ] Fix the way we handle exceeding context length (add filtering, splitting)
+- [ ] Use `llm_cost_estimation.models` to get max_tokens
 - [ ] Make summarization API calls asynchronous to reduce runtime
+- [ ] Add a final summarization step to reconcile the individual file summaries
 - [ ] Add tech stack summarization feature
-- [ ] Remove langchain because of breaking authentication bug?
 - [ ] Add support for LLMs other than OpenAI's chat models
+- [ ] Add support for Microsoft Azure OpenAI service to reduce latency/cost
 - [ ] Do some YouTube explainers/demos
 - [ ] Add more unit tests

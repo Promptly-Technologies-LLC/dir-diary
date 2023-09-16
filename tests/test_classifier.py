@@ -2,9 +2,10 @@
 from pathlib import Path
 import pytest
 import json
+import time
 from dir_diary.datastructures import FileClassificationList, ProjectFile
 from dir_diary.classifier import classify_files, initialize_project_map
-from dir_diary.langchain_chatbot import LLMClient
+from dir_diary.client import LLMClient
 
 @pytest.fixture
 def setup_project_map_file(tmp_path) -> Path:
@@ -67,11 +68,17 @@ def test_classify_files(reset_singleton) -> None:
     project_files: list[ProjectFile] = [ProjectFile(path=Path(path), modified=0) for path in example_file_paths]
     
     try:
+        # Define function arguments
+        start_time = time.perf_counter()
         # Run classify_files
         project_map: list[ProjectFile] = classify_files(
                 project_map_file=project_map_file,
                 project_files=project_files
             )
+        final_cost = LLMClient().total_cost
+        elapsed_time = time.perf_counter() - start_time
+        print(f"Elapsed Time: {elapsed_time:.10f}, Elapsed Cost: {final_cost:.10f}")
+        print(project_map)
     
         # Check that the project map is as expected: "source" for ".py" files,
         # documentation for ".md"

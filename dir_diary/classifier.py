@@ -1,5 +1,5 @@
 from .file_handler import ProjectFile
-from .langchain_chatbot import classify_with_langchain
+from .openai_chatbot import classify_with_openai
 from .datastructures import FileClassification, FileClassificationList
 from pathlib import Path
 import json
@@ -70,12 +70,9 @@ def classify_files(
         # Return the updated project_files
         return project_files
 
-    # Convert the project_map to an input string
-    input_str: str = project_map.to_json()
-
     # Query the LLM to update the project map
-    project_map: FileClassificationList = classify_with_langchain(
-                input_str=input_str,
+    project_map: FileClassificationList = classify_with_openai(
+                project_map=project_map,
             )
 
     # If project map is not empty, write it to the project_map_file

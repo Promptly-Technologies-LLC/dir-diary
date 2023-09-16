@@ -7,7 +7,7 @@ from llm_cost_estimation import models
 
 
 # Functions to enforce structured output from the chatbot
-functions = [
+functions: list[dict] = [
         {
           "name": "classify_project_files_by_role",
           "description": "Identify the role that each file plays in a software project",
@@ -28,23 +28,29 @@ file_classification_prompt = (
     "files as 'database', utility and action scripts as 'utility scripts', "
     "static assets like images, CSS, CSV, and JSON files as 'assets and "
     "data', and anything else that doesn't fit these categories (e.g., "
-    "compiled distribution files) as 'specialized'. Some files may already "
-    "be classified and included for context. They need not be reclassified "
-    "unless a classification is obviously wrong. 'None' or 'null' values, "
-    "however, should be replaced with the correct role.\n"
+    "compiled distribution files) as 'specialized'. Every file must be "
+    "assigned a valid role. 'None' and 'null' values are not allowed."
+    "Economize by returning minified JSON without extraneous whitespace.\n"
     "Here is the map of the project file structure:\n%s"
 )
 
-def classify_with_openai(input_str: str) -> FileClassificationList:
+def classify_with_openai(project_map: FileClassificationList) -> FileClassificationList:
+    # Convert the project_map to an input string
+    input_str: str = ", ".join([str(object=file.path) for file in project_map.files])
+
     # Query the LLM to update the project map
-    project_map: list[dict[str]] = query_llm(
+    print("Prompt: " + file_classification_prompt % input_str)
+    response = query_llm(
                 prompt=file_classification_prompt % input_str,
                 functions=functions
             )
 
-    # Create a FileClassificationList from the project map
-    json_project_map: str = json.loads(s=project_map.choices[0]["message"]["function_call"]["arguments"])
-    parsed_project_map: FileClassificationList = FileClassificationList.model_validate(obj=json_project_map)
+    # Get the project map from the response
+    json_project_map: list[dict] = response['choices'][0]['message']['function_call']['arguments']
+    print("Output: " + json.dumps(obj=json_project_map))
+
+    # Create a FileClassificationList from the returned JSON project map
+    parsed_project_map: FileClassificationList = FileClassificationList.model_validate_json(json_data=json_project_map)
 
     # Return the project map
     return parsed_project_map
@@ -78,16 +84,19 @@ usage_prompt = (
 def summarize_with_openai(input_str: str, summary_type: Literal["pseudocode", "usage"]) -> str:
     # Determine the prompt to use
     if summary_type == "pseudocode":
-        prompt = usage_prompt
-    elif summary_type == "usage":
         prompt = pseudocode_prompt
+    elif summary_type == "usage":
+        prompt = usage_prompt
 
     # Query the chatbot for a summary and parse the output
-    generated_summary: str = query_llm(
+    print("Prompt: " + prompt % input_str)
+    response: dict = query_llm(
                 prompt=prompt % input_str
             )
     
-    generated_summary.choices[0]["choices"]["message"]["content"]
+    # Get the generated summary from the response
+    generated_summary: str = response["choices"][0]["message"]["content"]
+    print("Output: " + generated_summary)
     
     return generated_summary
 
@@ -98,7 +107,7 @@ def get_max_tokens(long: bool = False) -> int:
     client = LLMClient()
     
     # Set model_name based on config + `long` argument
-    model_name = client.model_name if long else client.long_context_fallback
+    model_name = client.model_name if not long else client.long_context_fallback
     
     # Set max_tokens based on model_name
     if "32k" in model_name:
@@ -120,50 +129,54 @@ def query_llm(prompt: str, functions: Optional[list[dict]] = None) -> str:
     client = LLMClient()
     openai.api_key = client.api_key
 
-    # Generate the output from the input
+    # Prepare common arguments
+    request_args = {
+        'model': client.model_name,
+        'messages': [{"role": "user", "content": prompt}],
+        'max_tokens': get_max_tokens(long=False),
+    }
+    if functions is not None:
+        request_args['functions'] = functions
+        request_args['function_call'] = {'name': functions[0]['name']}
+
     try:
-        model_used = client.model_name
-        response: dict = openai.ChatCompletion.create(
-            model=client.model_name,
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
-            functions=functions
-        )
+        # Generate the output from the input
+        response: dict = openai.ChatCompletion.create(**request_args)
     except openai.InvalidRequestError as e:
-        # If we exceed context limit, check if long_context_fallback is None
         if client.long_context_fallback is None:
-            # If long_context_fallback is None, raise the error
             raise e
         else:
-            # If long_context_fallback is not None, warn and use long_context_fallback
-            print("Encountered error:\n" + e + "\nTrying again with long_context_fallback.")
-            model_used = client.long_context_fallback
-            response: dict = openai.ChatCompletion.create(
-                model=client.long_context_fallback,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ],
-                functions=functions
-            )
-    
+            print(f"Encountered error:\n{e}\nTrying again with long_context_fallback.")
+            request_args['model'] = client.long_context_fallback
+            request_args['max_tokens'] = get_max_tokens(long=True)
+            response: dict = openai.ChatCompletion.create(**request_args)
+
     # Update the total cost
-    client.total_cost += calculate_cost(
-            prompt_tokens=response["usage"]["prompt_tokens"],
-            completion_tokens=response["usage"]["completion_tokens"],
-            model_name=model_used
-        )
+    client.total_cost += calculate_cost(response=response)
 
     # Return the response object
     return response
 
 
 # Calculate cost of a query
-def calculate_cost(prompt_tokens: int, completion_tokens: int, model_used: str) -> float:
-    # Get cost per token for the model used from the models object
-    prompt_cost_per_token = [model['prompt_cost_per_token'] for model in models if model['name'] == model_used][0]
-    completion_cost_per_token = [model['completion_cost_per_token'] for model in models if model['name'] == model_used][0]
+def calculate_cost(response: dict) -> float:
+    prompt_tokens=response["usage"]["prompt_tokens"]
+    completion_tokens=response["usage"]["completion_tokens"]
+    model_used = response["model"]
     
+    # Get cost per token for the model used from the models object
+    prompt_cost_per_token: str = [model['prompt_cost_per_token'] for model in models if model['name'] == model_used][0]
+    completion_cost_per_token: str = [model['completion_cost_per_token'] for model in models if model['name'] == model_used][0]
+    
+    # Parse the cost per token strings
+    prompt_cost_per_token = parse_and_calculate(cost_str=prompt_cost_per_token)
+    completion_cost_per_token = parse_and_calculate(cost_str=completion_cost_per_token)
+
     # Calculcate and return the total cost of the query
     total_cost = (prompt_tokens * prompt_cost_per_token) + (completion_tokens * completion_cost_per_token)
     return total_cost
+
+
+def parse_and_calculate(cost_str: str) -> float:
+    num_str, den_str = cost_str.split(sep=" / ")
+    return float(num_str) / float(den_str)
