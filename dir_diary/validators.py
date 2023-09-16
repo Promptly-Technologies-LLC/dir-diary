@@ -53,7 +53,7 @@ def validate_paths(startpath: str, destination: str) -> tuple[Path, Path]:
     if not access(path=startpath, mode=R_OK):
         raise PermissionError(f"Read permission is required for the startpath {startpath}")
 
-    if not access(path=destination, mode=W_OK):
+    if not access(path=startpath, mode=W_OK):
         raise PermissionError(f"Write permission is required for the destination path {destination}")
     
     return startpath, destination
