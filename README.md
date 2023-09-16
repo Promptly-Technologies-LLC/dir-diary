@@ -150,7 +150,7 @@ Inside a Python script, you can summarize your project folder with the `summariz
 To use the tool from a Python script, import and invoke as follows:
 
 ```python
-from dir-diary import summarize_project_folder
+from dir_diary import summarize_project_folder
 
 summarize_project_folder(
     startpath="./my_project",
@@ -216,12 +216,10 @@ For a more detailed understanding, please refer to the source code, inline comme
 
 ## To-do
 
-- [ ] Fix the way we handle exceeding context length (use `llm_cost_estimation.models`?)
-- [ ] Add a check that no lines in the summary begin with a hashtag
-- [ ] Add error handling for an unparseable summary file
+- [ ] Fix the way we handle exceeding context length (use `llm_cost_estimation.models` to get context limits?)
 - [ ] Make summarization API calls asynchronous to reduce runtime
 - [ ] Add tech stack summarization feature
-- [ ] Remove langchain because it's too buggy?
+- [ ] Remove langchain because of breaking authentication bug?
 - [ ] Add support for LLMs other than OpenAI's chat models
 - [ ] Do some YouTube explainers/demos
 - [ ] Add more unit tests

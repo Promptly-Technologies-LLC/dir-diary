@@ -1,6 +1,21 @@
 from typing import Union
 from os import PathLike, access, R_OK, W_OK
 from pathlib import Path
+from contextlib import contextmanager
+import sys
+import openai
+
+
+# Raise exception without printing traceback
+@contextmanager
+def disable_exception_traceback():
+    """
+    All traceback information is suppressed and only the exception type and value are printed
+    """
+    default_value = getattr(sys, "tracebacklimit", 1000)
+    sys.tracebacklimit = 0
+    yield
+    sys.tracebacklimit = default_value
 
 
 # Generic validation function
@@ -60,3 +75,14 @@ def validate_temperature(temperature: Union[int, float, str]) -> Union[int, floa
         raise ValueError("The `temperature` argument must be between 0 and 1.")
     
     return float_temperature
+
+
+def validate_api_key(api_key: str) -> str:
+    try:
+        openai.Model.list(api_key=api_key)
+        print("Authentication was successful")
+    except openai.OpenAIError as err:
+        with disable_exception_traceback():
+            raise(err)
+
+    return api_key

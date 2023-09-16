@@ -2,9 +2,9 @@ import pytest
 import os
 from pathlib import Path
 import datetime
-from dir_diary.summarizer import summarize_file
+from dir_diary.summarizer import summarize_file, replace_hashtags
 from dir_diary.datastructures import ModuleSummary, ProjectFile
-from dir_diary.chatbot import LLMClient
+from dir_diary.langchain_chatbot import LLMClient
 
 
 # Define pytest fixture for resetting singleton
@@ -62,3 +62,17 @@ def test_summarize_file(reset_singleton) -> None:
 
     # Assert that the cost after the second call is greater than after the first
     assert final_cost > initial_cost
+
+# Test replace_hashtags
+def test_replace_hashtags() -> None:
+    # Define input and expected output, removing initial hashtags (but not
+    # hashtags in the middle of a line), and wrapping the line with double
+    # asterisks
+    input = "# This is a comment.\nThis is not a #comment.\n# This is another comment."
+    expected_output = "**This is a comment.**\nThis is not a #comment.\n**This is another comment.**"
+
+    # Run replace_hashtags
+    output = replace_hashtags(text=input)
+
+    # Assert that the output is as expected
+    assert output == expected_output

@@ -4,7 +4,7 @@ import pytest
 import json
 from dir_diary.datastructures import FileClassificationList, ProjectFile
 from dir_diary.classifier import classify_files, initialize_project_map
-from dir_diary.chatbot import LLMClient
+from dir_diary.langchain_chatbot import LLMClient
 
 @pytest.fixture
 def setup_project_map_file(tmp_path) -> Path:

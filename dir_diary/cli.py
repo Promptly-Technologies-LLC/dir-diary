@@ -1,6 +1,5 @@
 from .summarize import summarize_project_folder
 import click
-import pprint
 
 @click.command()
 @click.option('--startpath', default=".", type=click.Path(), help='Path to the project folder.')

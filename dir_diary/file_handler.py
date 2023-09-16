@@ -2,44 +2,71 @@
 from .datastructures import ModuleSummary, ProjectFile
 from pathlib import Path
 from datetime import datetime
+from warnings import warn
 
 
 # Given a summary file path, create a list of ModuleSummary objects
 # from the file or create the file and return an empty list if the file does
 # not exist
 def read_summary_file(summary_file: Path) -> list[ModuleSummary]:
-    # Create empty list
-    summaries = []
+    # Initialize an empty list to hold ModuleSummary objects
+    summaries: list[ModuleSummary] = []
 
-    # If the summary file does not exist, create it and return an empty list
-    if not summary_file.exists():
+    try:
+        # Check if the summary_file exists
+        if not summary_file.exists():
+            # Create the file if it doesn't exist
+            summary_file.touch()
+            # Return an empty list as the file is newly created
+            return summaries
+
+        # Read the contents of the summary file
+        with open(file=summary_file, mode="r") as f:
+            contents: str = f.read()
+
+        # Check if the content contains any sections, if not log a warning
+        if "#" not in contents:
+            warn(message="The summary file is empty or does not contain any recognizable sections.\nStarting fresh with a blank file.")
+            summary_file.unlink()
+            summary_file.touch()
+            return []
+        
+        # Loop through each section in the file, separated by "# "
+        # Skip the first section as it's empty
+        for section in contents.split(sep="# ")[1:]:
+            # Split the section into individual lines
+            lines: list[str] = section.split(sep="\n")
+
+            # Check if the section has at least 3 lines
+            if len(lines) < 3:
+                continue
+            
+            # Parse and type-hint individual parts of each section
+            path: Path = Path(lines[0])
+            modified: datetime = datetime.strptime(lines[1], "%Y-%m-%d %H:%M:%S")
+            content: str = "\n".join(lines[2:]).rstrip("\n")
+            
+            # Create and validate a ModuleSummary object
+            module: ModuleSummary = ModuleSummary(path=path, modified=modified, content=content)
+            
+            # Add the ModuleSummary object to the list
+            summaries.append(module)
+    
+    except Exception as e:
+        # Log a warning if an exception occurs
+        warn(message=f"An error occurred while parsing the summary file: {e}\nStarting fresh with a blank file.")
+
+        # Delete the file if it exists
+        if summary_file.exists():
+            summary_file.unlink()
+
+        # Create a new empty file
         summary_file.touch()
-        return summaries
 
-    # Read the file
-    with(open(file=summary_file, mode="r")) as f:
-        contents = f.read()
+        # Return an empty list since the original file was unparseable
+        return []
     
-    # For each section introduced by a single-hashed header, add a dict to the list
-    # Skip the first (empty) section
-    for section in contents.split(sep="# ")[1:]:
-        # Split the section into lines
-        lines = section.split(sep="\n")
-        # Check that there are enough lines
-        if len(lines) < 3:
-            continue
-        # The path is the first line
-        path = Path(lines[0])
-        # Convert the modified timestamp to a datetime object
-        modified = datetime.strptime(lines[1], "%Y-%m-%d %H:%M:%S")
-        # The content is the rest of the lines
-        content = "\n".join(lines[2:]).rstrip("\n")
-        # Create a ModuleSummary object and validate with Pydantic
-        module = ModuleSummary(path=path, modified=modified, content=content)
-        #Append dict to the list
-        summaries.append(module)
-    
-    # Return the list
+    # Return the list of ModuleSummary objects
     return summaries
 
 

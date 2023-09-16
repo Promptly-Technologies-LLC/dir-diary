@@ -4,6 +4,7 @@ from dir_diary.datastructures import ModuleSummary, ProjectFile
 from pathlib import Path
 from datetime import datetime
 import os
+import pytest
 
 
 def test_read_and_write_summary_file(tmp_path) -> None:
@@ -64,6 +65,21 @@ def test_read_and_write_multiple_sections(tmp_path) -> None:
     # Check the contents of the pseudocode list
     expected = [module1, module2]
     assert pseudocode_list == expected
+
+
+def test_unparseable_file(tmp_path) -> None:
+    # Create an unparseable file
+    bad_file: Path = tmp_path / "bad_file.md"
+    bad_file.write_text("This content will not parse correctly")
+
+    # Test that a warning is issued for the unparseable file
+    with pytest.warns(expected_warning=UserWarning):
+        summaries = read_summary_file(summary_file=bad_file)
+
+    # Assert that an empty list is returned and a new empty file is created
+    assert summaries == []
+    assert bad_file.exists()
+    assert bad_file.read_text() == ""
 
 
 def test_identify_new_and_modified_files(tmp_path) -> None:

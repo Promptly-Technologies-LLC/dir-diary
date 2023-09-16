@@ -1,4 +1,4 @@
-from .chatbot import LLMClient
+from .langchain_chatbot import LLMClient
 from .classifier import classify_files
 from .summarizer import summarize_file
 from .file_handler import (read_summary_file, write_summary_file,

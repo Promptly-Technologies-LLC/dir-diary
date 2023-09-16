@@ -1,10 +1,7 @@
 from .file_handler import ProjectFile
-from .chatbot import query_llm
+from .langchain_chatbot import classify_with_langchain
 from .datastructures import FileClassification, FileClassificationList
 from pathlib import Path
-from langchain import PromptTemplate
-from langchain.chat_models import ChatOpenAI
-from langchain.output_parsers import PydanticOutputParser
 import json
 
 
@@ -49,18 +46,6 @@ def update_project_map(
     return project_map
 
 
-# Parser for the LLM output
-parser = PydanticOutputParser(pydantic_object=FileClassificationList)
-
-# Prompt template for determining the roles that files play in the project
-file_classification_prompt: PromptTemplate = PromptTemplate(
-    template="We have mapped the file structure of a project folder for an existing coding project. Based solely on the file structure, let's attempt to classify them by the role they play in the project. We will label code modules, entry points, and endpoints as 'source'; config files, environment files, and dependency files as 'configuration'; build files, Docker files, and CI/CD files as 'build or deployment'; READMEs, CHANGELOGs, pseudocodes, project maps, licenses, and docs as 'documentation'; unit tests as 'testing'; migration, schema, and seed files as 'database', utility and action scripts as 'utility scripts', static assets like images, CSS, CSV, and JSON files as 'assets and data', and anything else that doesn't fit these categories (e.g., compiled distribution files) as 'specialized'. Some files may already be classified and included for context. They need not be reclassified unless a classification is obviously wrong. 'None' or 'null' values, however, should be replaced with the correct role.\n{format_instructions}\nHere is the map of the project file structure:\n{input_str}",
-    input_variables=["input_str"],
-    partial_variables={"format_instructions": parser.get_format_instructions()},
-    output_parser=parser
-)
-
-
 # Query a chatbot to determine the role that files play in the project
 def classify_files(
             project_map_file: Path,
@@ -89,10 +74,8 @@ def classify_files(
     input_str: str = project_map.to_json()
 
     # Query the LLM to update the project map
-    project_map: FileClassificationList = query_llm(
-                prompt=file_classification_prompt,
+    project_map: FileClassificationList = classify_with_langchain(
                 input_str=input_str,
-                parser=parser
             )
 
     # If project map is not empty, write it to the project_map_file

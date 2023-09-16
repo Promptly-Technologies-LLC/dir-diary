@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dir-diary"
-version = "0.3.0"
+version = "0.3.1"
 description = "A Python CLI tool to summarize your software project folder with LLMs"
 license = "MIT"
 authors = ["Christopher Carroll Smith <christopher.smith@promptlytechnologies.com>"]
@@ -8,13 +8,14 @@ readme = "README.md"
 packages = [{include = "dir_diary"}]
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
+python = "^3.9"
 langchain = "^0.0.272"
 python-dotenv = "^1.0.0"
 pydantic = "^2.3.0"
 pathspec = "^0.11.2"
 openai = "^0.28.0"
 click = "^8.1.7"
+llm_cost_estimation = "^0.1.4"
 
 
 [tool.poetry.group.dev.dependencies]
