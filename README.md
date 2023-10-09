@@ -197,7 +197,7 @@ pseudocode: list[ModulePseudocode] = read_pseudocode_file("./docs/pseudocode.md"
 
 ## Contributing
 
-We welcome contributions! Feel free to submit pull requests for new features, improvements, or bug fixes. Please make sure to follow best practices and include unit tests using the pytest framework.
+We welcome contributions! Feel free to submit pull requests for new features, improvements, or bug fixes. Please make sure to follow best practices and include unit tests using the pytest framework. Before making contributions, please consult the 'Roadmap' section below.
 
 For any issues, please [create an issue on GitHub](https://github.com/Promptly-Technologies-LLC/dir-diary/issues).
 
@@ -214,16 +214,20 @@ For any issues, please [create an issue on GitHub](https://github.com/Promptly-T
   
 For a more detailed understanding, please refer to the source code, inline comments, and, most importantly, [docs\pseudocode.md](docs\pseudocode.md)!
 
-## To-do
+## Roadmap
 
 - [ ] Replace print statements with proper console logs
 - [ ] Add console logging to the folder mapping step, and see if we can improve speed for this step
 - [ ] Deal with condition where LLM response['choices']['finish_reason'] == 'length' (success code but response exceeds context length)
 - [ ] Fix the way we handle exceeding context length (add filtering, splitting)
 - [ ] Use `llm_cost_estimation.models` to get max_tokens
-- [ ] Make summarization API calls asynchronous to reduce runtime
-- [ ] Add a final summarization step to reconcile the individual file summaries
+- [ ] Make all summarization API calls asynchronous to reduce runtime
 - [ ] Add tech stack summarization feature
+- [ ] Add a final summarization step to reconcile the individual file summaries?
+- [ ] Do some prompt engineering for better outputs, and/or allow user-defined custom prompts
+- [ ] Add some preprocessing to pull the right stuff into context during summarization, maybe using universal ctags or abstract syntax tree?
+- [ ] Support summarizing at the object level rather than the module level?
+- [ ] Add some prompt chaining and/or preprocessing to usage summarization to ensure we only summarize exported objects
 - [ ] Add support for LLMs other than OpenAI's chat models
 - [ ] Add support for Microsoft Azure OpenAI service to reduce latency/cost
 - [ ] Do some YouTube explainers/demos
